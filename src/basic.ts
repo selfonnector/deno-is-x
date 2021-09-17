@@ -77,7 +77,7 @@ export function isStruct_<SCHEMA extends Assoc<any>, OPT_KEY extends Exclude<key
         return true
     }
 }
-export function hasStruct_<SCHEMA extends Assoc<any> = {}>(vldSchema: ValidationMap<SCHEMA>): Validation<SCHEMA & Assoc<any>>
+export function hasStruct_<SCHEMA extends Assoc<any>>(vldSchema: ValidationMap<SCHEMA>): Validation<SCHEMA & Assoc<any>>
 export function hasStruct_<SCHEMA extends Assoc<any>, OPT_KEY extends Exclude<keyof SCHEMA, keyof Object>>(vldSchema: ValidationMap<SCHEMA>, optionalKeys?: OPT_KEY[]): Validation<Optionally<SCHEMA, OPT_KEY> & Assoc<any>>
 export function hasStruct_<SCHEMA extends Assoc<any>, OPT_KEY extends Exclude<keyof SCHEMA, keyof Object> = never>(vldSchema: ValidationMap<SCHEMA>, optionalKeys?: OPT_KEY[]) {
     const vlds: Assoc<Validation<any>> = { ...vldSchema }
