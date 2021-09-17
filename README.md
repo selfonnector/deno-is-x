@@ -1,6 +1,9 @@
 # Deno is_x module
 [![deno doc](https://doc.deno.land/badge.svg)](https://deno.land/x/is_x)
 
+## Requirement
+- Deno v1.14.0+
+
 ## About
 - value => value is x
 - x = You can decide. Assist it.
