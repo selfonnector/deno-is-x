@@ -122,14 +122,14 @@ function assertEqualsForValidations(target: any, expected: typeof vldsExpected) 
     assertEquals<boolean>(isStruct_({ a: is('0'), b: is('0') })(target), expected.isStruct___a_____0_____b_____0__)
     assertEquals<boolean>(isStruct_({ a: is('0'), b: is('0') }, ['a', 'b'])(target), expected.isStruct___a_____0_____b_____0___OPT___a_____b__)
     assertEquals<boolean>(isStruct_({ a: is('0'), b: is('0') }, ['b'])(target), expected.isStruct___a_____0_____b_____0___OPT___b__)
-    assertEquals<boolean>(isStruct_({ [symbolA]: is('0'), [symbolB]: is('0') } as const /* Waiting for TS version 4.4 support of Deno: -as const */, [symbolB])(target), expected.isStruct_SymbolA___0___SymbolB___0___OPT_SymbolB)
+    assertEquals<boolean>(isStruct_({ [symbolA]: is('0'), [symbolB]: is('0') }, [symbolB])(target), expected.isStruct_SymbolA___0___SymbolB___0___OPT_SymbolB)
     assertEquals<boolean>(hasStruct_({})(target), expected.hasEmptyStruct)
     assertEquals<boolean>(hasStruct_({ a: isString })(target), expected.hasStruct___a___String)
     assertEquals<boolean>(hasStruct_({ a: isString, b: isString })(target), expected.hasStruct___a___String___b___String)
     assertEquals<boolean>(hasStruct_({ a: is('0'), b: is('0') })(target), expected.hasStruct___a_____0_____b_____0__)
     assertEquals<boolean>(hasStruct_({ a: is('0'), b: is('0') }, ['a', 'b'])(target), expected.hasStruct___a_____0_____b_____0___OPT___a_____b__)
     assertEquals<boolean>(hasStruct_({ a: is('0'), b: is('0') }, ['b'])(target), expected.hasStruct___a_____0_____b_____0___OPT___b__)
-    assertEquals<boolean>(hasStruct_({ [symbolA]: is('0'), [symbolB]: is('0') } as const /* Waiting for TS version 4.4 support of Deno: -as const */, [symbolB])(target), expected.hasStruct_SymbolA___0___SymbolB___0___OPT_SymbolB)
+    assertEquals<boolean>(hasStruct_({ [symbolA]: is('0'), [symbolB]: is('0') }, [symbolB])(target), expected.hasStruct_SymbolA___0___SymbolB___0___OPT_SymbolB)
     assertEquals<boolean>(isUnion_()(target), expected.isEmptyUnion)
     assertEquals<boolean>(isUnion_(is('0'), is(0n), is(symbolA), isUndefined, isStruct_({}))(target), expected.isUnion_ptnA)
     assertEquals<boolean>(isUnion_(is(0), is(false), isNull, isArray_(isNever))(target), expected.isUnion_ptnB)
@@ -192,9 +192,9 @@ if (isTuple_(is('0'), is(0))(target)) {
     target.pop
 }
 if (isAssoc_(is('0'))(target)) {
-    target // : Assoc<"0"> = { [key: string | symbol]: "0" } (Waiting for TS version 4.4 support of Deno)
+    target // : Assoc<"0"> = { [key: string | symbol]: "0" }
     target.a // : "0" (It may be '"0" | undefined' to be exact, but ...)
-    // Waiting for TS version 4.4 support of Deno: +target[symbolA] // : "0" (It may be '"0" | undefined' to be exact, but ...)
+    target[symbolA] // : "0" (It may be '"0" | undefined' to be exact, but ...)
     target.valueOf // : Object.valueOf(): Object (It may be '"0" | undefined | Object.valueOf(): Object' to be exact, but ...)
 }
 if (isDict_(is('0'))(target)) {
@@ -203,8 +203,8 @@ if (isDict_(is('0'))(target)) {
     target.valueOf // : Object.valueOf(): Object (It may be '"0" | undefined | Object.valueOf(): Object' to be exact, but ...)
 }
 if (isAlbum_(is('0'))(target)) {
-    target // : Album<"0"> = { [key: symbol]: "0" } (Waiting for TS version 4.4 support of Deno)
-    // Waiting for TS version 4.4 support of Deno: +target[symbolA] // : "0" (It may be '"0" | undefined' to be exact, but ...)
+    target // : Album<"0"> = { [key: symbol]: "0" }
+    target[symbolA] // : "0" (It may be '"0" | undefined' to be exact, but ...)
     target.valueOf // : Object.valueOf(): Object
 }
 if (isStruct_({ a: is('0'), b: is(0) })(target)) {

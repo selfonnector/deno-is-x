@@ -115,13 +115,13 @@ type ValidationMap<T> = {
     [P in keyof T]: Validation<T[P]>
 }
 type Assoc<E> = {
-    [key: string]: E // Waiting for TS version 4.4 support of Deno: +[key: string | symbol]: E
+    [key: string | symbol]: E
 }
 type Dict<E> = {
     [key: string]: E
 }
 type Album<E> = {
-    [key: string]: E // Waiting for TS version 4.4 support of Deno: +[key: symbol]: E
+    [key: symbol]: E
 }
 type PropKey<T = any> = keyof T & (string | symbol)
 type Optionally<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
