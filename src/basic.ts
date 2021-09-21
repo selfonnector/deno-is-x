@@ -29,9 +29,12 @@ export function isUndefined(target: any): target is undefined {
 export function is<T extends string | number | bigint | boolean | symbol>(value: T) {
     return (target: any): target is T => target === value
 }
-export function isArray_<E>(elemVld: Validation<E>) {
-    return (target: any): target is E[] => {
+export function isArray_<E>(elemVld: Validation<E>): Validation<E[]>
+export function isArray_<E, LENGTH extends number>(elemVld: Validation<E>, length: LENGTH): Validation<Tuple<E, LENGTH>>
+export function isArray_(elemVld: Validation<any>, length?: number) {
+    return (target: any) => {
         if (!isPlaneArray(target)) return false
+        if (isNumber(length) && target.length !== length) return false
         for (const tgtElem of target) if (!elemVld(tgtElem)) return false
         return true
     }
@@ -125,6 +128,7 @@ type Album<E> = {
 }
 type PropKey<T = any> = keyof T & (string | symbol)
 type Optionally<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+type Tuple<T, LENGTH extends number, BASE extends any[] = []> = BASE['length'] extends LENGTH ? LENGTH extends BASE['length'] ? BASE : [...BASE, ...T[]] : Tuple<T, LENGTH, [...BASE, T]>
 function isObject(target: any): target is object {
     return typeof target === 'object' && target !== null
 }

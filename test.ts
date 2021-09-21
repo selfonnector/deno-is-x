@@ -52,6 +52,9 @@ const vldsExpected = {
     isEmptyArray: false,
     isStringArray: false,
     is__0__Array: false,
+    is__0__Array_LEN_0: false,
+    is__0__Array_LEN_1: false,
+    is__0__Array_LEN_2: false,
     isEmptyTuple: false,
     isTuple_0_String: false,
     isTuple_0_String_1_String: false,
@@ -103,6 +106,9 @@ function assertEqualsForValidations(target: any, expected: typeof vldsExpected) 
     assertEquals<boolean>(isArray_(isNever)(target), expected.isEmptyArray)
     assertEquals<boolean>(isArray_(isString)(target), expected.isStringArray)
     assertEquals<boolean>(isArray_(is('0'))(target), expected.is__0__Array)
+    assertEquals<boolean>(isArray_(is('0'), 0)(target), expected.is__0__Array_LEN_0)
+    assertEquals<boolean>(isArray_(is('0'), 1)(target), expected.is__0__Array_LEN_1)
+    assertEquals<boolean>(isArray_(is('0'), 2)(target), expected.is__0__Array_LEN_2)
     assertEquals<boolean>(isTuple_()(target), expected.isEmptyTuple)
     assertEquals<boolean>(isTuple_(isString)(target), expected.isTuple_0_String)
     assertEquals<boolean>(isTuple_(isString, isString)(target), expected.isTuple_0_String_1_String)
@@ -187,6 +193,14 @@ if (isArray_(is('0'))(target)) {
     target // : "0"[]
     target.pop
 }
+if (isArray_(is('0'), 3)(target)) {
+    target // : ["0", "0", "0"]
+    target.pop
+}
+if (isArray_(is('0'), 3 as number)(target)) {
+    target // : "0"[]
+    target.pop
+}
 if (isTuple_(is('0'), is(0))(target)) {
     target // : ["0", 0]
     target.pop
@@ -256,9 +270,9 @@ Deno.test({
         assertEquals_Vlds(symbolB, ['isSymbol'])
         assertEquals_Vlds(null, ['isNull', 'isUnion_ptnB'])
         assertEquals_Vlds(undefined, ['isUndefined', 'isUnion_ptnA'])
-        assertEquals_Vlds([], ['isEmptyArray', 'isStringArray', 'is__0__Array', 'isEmptyTuple', 'isUnion_ptnB'])
-        assertEquals_Vlds(['0'], ['isStringArray', 'is__0__Array', 'isTuple_0_String'])
-        assertEquals_Vlds(['0', '0'], ['isStringArray', 'is__0__Array', 'isTuple_0_String_1_String', 'isTuple_0___0___1___0__'])
+        assertEquals_Vlds([], ['isEmptyArray', 'isStringArray', 'is__0__Array', 'is__0__Array_LEN_0', 'isEmptyTuple', 'isUnion_ptnB'])
+        assertEquals_Vlds(['0'], ['isStringArray', 'is__0__Array', 'is__0__Array_LEN_1', 'isTuple_0_String'])
+        assertEquals_Vlds(['0', '0'], ['isStringArray', 'is__0__Array', 'is__0__Array_LEN_2', 'isTuple_0_String_1_String', 'isTuple_0___0___1___0__'])
         assertEquals_Vlds(['0', '1'], ['isStringArray', 'isTuple_0_String_1_String'])
         assertEquals_Vlds({}, ['isEmptyAssoc', 'isStringAssoc', 'is__0__Assoc', 'isEmptyDict', 'isStringDict', 'is__0__Dict', 'isEmptyAlbum', 'isStringAlbum', 'is__0__Album', 'isEmptyStruct', 'isStruct___a_____0_____b_____0___OPT___a_____b__', 'hasEmptyStruct', 'hasStruct___a_____0_____b_____0___OPT___a_____b__', 'isUnion_ptnA', 'isLoopNest'])
         assertEquals_Vlds({ a: '0' }, ['isStringAssoc', 'is__0__Assoc', 'isStringDict', 'is__0__Dict', 'isStruct___a___String', 'isStruct___a_____0_____b_____0___OPT___a_____b__', 'isStruct___a_____0_____b_____0___OPT___b__', 'hasEmptyStruct', 'hasStruct___a___String', 'hasStruct___a_____0_____b_____0___OPT___a_____b__', 'hasStruct___a_____0_____b_____0___OPT___b__'])
@@ -290,9 +304,9 @@ Deno.test({
         assertEquals_Vlds(JSON.parse('false'), ['isBoolean', 'isFalse', 'isUnion_ptnB'])
         assertEquals_Vlds(JSON.parse('true'), ['isBoolean'])
         assertEquals_Vlds(JSON.parse('null'), ['isNull', 'isUnion_ptnB'])
-        assertEquals_Vlds(JSON.parse('[]'), ['isEmptyArray', 'isStringArray', 'is__0__Array', 'isEmptyTuple', 'isUnion_ptnB'])
-        assertEquals_Vlds(JSON.parse('["0"]'), ['isStringArray', 'is__0__Array', 'isTuple_0_String'])
-        assertEquals_Vlds(JSON.parse('["0", "0"]'), ['isStringArray', 'is__0__Array', 'isTuple_0_String_1_String', 'isTuple_0___0___1___0__'])
+        assertEquals_Vlds(JSON.parse('[]'), ['isEmptyArray', 'isStringArray', 'is__0__Array', 'is__0__Array_LEN_0', 'isEmptyTuple', 'isUnion_ptnB'])
+        assertEquals_Vlds(JSON.parse('["0"]'), ['isStringArray', 'is__0__Array', 'is__0__Array_LEN_1', 'isTuple_0_String'])
+        assertEquals_Vlds(JSON.parse('["0", "0"]'), ['isStringArray', 'is__0__Array', 'is__0__Array_LEN_2', 'isTuple_0_String_1_String', 'isTuple_0___0___1___0__'])
         assertEquals_Vlds(JSON.parse('["0", "1"]'), ['isStringArray', 'isTuple_0_String_1_String'])
         assertEquals_Vlds(JSON.parse('{}'), ['isEmptyAssoc', 'isStringAssoc', 'is__0__Assoc', 'isEmptyDict', 'isStringDict', 'is__0__Dict', 'isEmptyAlbum', 'isStringAlbum', 'is__0__Album', 'isEmptyStruct', 'isStruct___a_____0_____b_____0___OPT___a_____b__', 'hasEmptyStruct', 'hasStruct___a_____0_____b_____0___OPT___a_____b__', 'isUnion_ptnA', 'isLoopNest'])
         assertEquals_Vlds(JSON.parse('{ "a": "0" }'), ['isStringAssoc', 'is__0__Assoc', 'isStringDict', 'is__0__Dict', 'isStruct___a___String', 'isStruct___a_____0_____b_____0___OPT___a_____b__', 'isStruct___a_____0_____b_____0___OPT___b__', 'hasEmptyStruct', 'hasStruct___a___String', 'hasStruct___a_____0_____b_____0___OPT___a_____b__', 'hasStruct___a_____0_____b_____0___OPT___b__'])
