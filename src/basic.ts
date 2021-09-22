@@ -108,11 +108,11 @@ export function isUnion_<CASES extends any[]>(...caseVlds: ValidationMap<CASES>)
 export function concat<A, B extends A, C extends B>(a: Validation<B, A>, b: Validation<C, B>) {
     return (target: A): target is C => a(target) && b(target)
 }
-export function ref<A extends (string | number | bigint | boolean | symbol)[], T>(vldGet: (...args: A) => Validation<T>, ...args: A): Validation<T>
-export function ref<A extends any[], T>(vldGet: (...args: A) => Validation<T>, ...args: A): Validation<T>
-export function ref<A extends any[], T>(vldGet: (...args: A) => Validation<T>, ...args: A) {
-    let cacheVld: Validation<T> | null = null
-    return (target: any) => {
+export function ref<A extends (string | number | bigint | boolean | symbol)[], T extends TARGET, TARGET>(vldGet: (...args: A) => Validation<T, TARGET>, ...args: A): Validation<T, TARGET>
+export function ref<A extends any[], T extends TARGET, TARGET>(vldGet: (...args: A) => Validation<T, TARGET>, ...args: A): Validation<T, TARGET>
+export function ref<A extends any[], T extends TARGET, TARGET>(vldGet: (...args: A) => Validation<T, TARGET>, ...args: A) {
+    let cacheVld: Validation<T, TARGET> | null = null
+    return (target: TARGET) => {
         if (cacheVld === null) cacheVld = vldGet(...args)
         return cacheVld(target)
     }

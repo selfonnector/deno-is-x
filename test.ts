@@ -265,6 +265,9 @@ if (concat(isUnion_(is(1), is('1')), is1_1or__1__)(target)) {
 if (ref(is, '0')(target)) {
     target // : "0"
 }
+if (ref(() => is1_1or__1__)('1'/* : 1 | "1" */)) {
+    target // : 1
+}
 type _String = ValidType<typeof isString> // : string
 type _LoopNest = ValidType<typeof isLoopNest> // : { a?: LoopNest | undefined; }
 Deno.test({
