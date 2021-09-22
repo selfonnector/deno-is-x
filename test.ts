@@ -22,10 +22,14 @@ import {
     isStruct_,
     hasStruct_,
     isUnion_,
+    concat,
     ref
 } from './mod.ts'
 const symbolA = Symbol(0)
 const symbolB = Symbol(0)
+function is1_1or__1__(target: 1 | '1'): target is 1 {
+    return target === 1
+}
 type LoopNest = { a?: LoopNest }
 function isLoopNest_(): Validation<LoopNest> {
     return isStruct_({
@@ -85,6 +89,7 @@ const vldsExpected = {
     isEmptyUnion: false,
     isUnion_ptnA: false,
     isUnion_ptnB: false,
+    is1: false,
     ref_is__0__: false,
     isLoopNest: false
 }
@@ -139,6 +144,7 @@ function assertEqualsForValidations(target: any, expected: typeof vldsExpected) 
     assertEquals<boolean>(isUnion_()(target), expected.isEmptyUnion)
     assertEquals<boolean>(isUnion_(is('0'), is(0n), is(symbolA), isUndefined, isStruct_({}))(target), expected.isUnion_ptnA)
     assertEquals<boolean>(isUnion_(is(0), is(false), isNull, isArray_(isNever))(target), expected.isUnion_ptnB)
+    assertEquals<boolean>(concat(isUnion_(is(1), is('1')), is1_1or__1__)(target), expected.is1)
     assertEquals<boolean>(ref(is, '0')(target), expected.ref_is__0__)
     assertEquals<boolean>(isLoopNest(target), expected.isLoopNest)
 }
@@ -250,6 +256,12 @@ if (hasStruct_({ a: is('0'), b: is(0) }, ['b'])(target)) {
 if (isUnion_(is('0'), is(0))(target)) {
     target // : 0 | "0"
 }
+if (concat(isString, is('0'))(target)) {
+    target // : "0"
+}
+if (concat(isUnion_(is(1), is('1')), is1_1or__1__)(target)) {
+    target // : 1
+}
 if (ref(is, '0')(target)) {
     target // : "0"
 }
@@ -261,7 +273,7 @@ Deno.test({
         assertEquals_Vlds('0', ['isString', 'is__0__', 'isUnion_ptnA', 'ref_is__0__'])
         assertEquals_Vlds('1', ['isString'])
         assertEquals_Vlds(0, ['isNumber', 'is0', 'isUnion_ptnB'])
-        assertEquals_Vlds(1, ['isNumber'])
+        assertEquals_Vlds(1, ['isNumber', 'is1'])
         assertEquals_Vlds(0n, ['isBigInt', 'is0n', 'isUnion_ptnA'])
         assertEquals_Vlds(1n, ['isBigInt'])
         assertEquals_Vlds(false, ['isBoolean', 'isFalse', 'isUnion_ptnB'])
@@ -300,7 +312,7 @@ Deno.test({
         assertEquals_Vlds(JSON.parse('"0"'), ['isString', 'is__0__', 'isUnion_ptnA', 'ref_is__0__'])
         assertEquals_Vlds(JSON.parse('"1"'), ['isString'])
         assertEquals_Vlds(JSON.parse('0'), ['isNumber', 'is0', 'isUnion_ptnB'])
-        assertEquals_Vlds(JSON.parse('1'), ['isNumber'])
+        assertEquals_Vlds(JSON.parse('1'), ['isNumber', 'is1'])
         assertEquals_Vlds(JSON.parse('false'), ['isBoolean', 'isFalse', 'isUnion_ptnB'])
         assertEquals_Vlds(JSON.parse('true'), ['isBoolean'])
         assertEquals_Vlds(JSON.parse('null'), ['isNull', 'isUnion_ptnB'])

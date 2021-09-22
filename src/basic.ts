@@ -105,6 +105,9 @@ export function isUnion_<CASES extends any[]>(...caseVlds: ValidationMap<CASES>)
         return false
     }
 }
+export function concat<A, B extends A, C extends B>(a: Validation<B, A>, b: Validation<C, B>) {
+    return (target: A): target is C => a(target) && b(target)
+}
 export function ref<A extends (string | number | bigint | boolean | symbol)[], T>(vldGet: (...args: A) => Validation<T>, ...args: A): Validation<T>
 export function ref<A extends any[], T>(vldGet: (...args: A) => Validation<T>, ...args: A): Validation<T>
 export function ref<A extends any[], T>(vldGet: (...args: A) => Validation<T>, ...args: A) {
