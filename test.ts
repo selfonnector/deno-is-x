@@ -32,7 +32,7 @@ function is1_1or__1__(target: 1 | '1'): target is 1 {
     return target === 1
 }
 type LoopNest = { a?: LoopNest }
-function isLoopNest_(): Validation<LoopNest> {
+function isLoopNest_(): Validation<any, LoopNest> {
     return isStruct_({
         a: ref(isLoopNest_)
     }, ['a'])

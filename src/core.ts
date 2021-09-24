@@ -1,2 +1,2 @@
-export type Validation<T extends Target, Target = any> = (target: Target) => target is T
-export type ValidType<V extends Validation<any>> = V extends Validation<infer T> ? T : never
+export type Validation<Target, Valid extends Target> = (target: Target) => target is Valid
+export type ValidType<V extends Validation<any, any>> = V extends Validation<any, infer Valid> ? Valid : never

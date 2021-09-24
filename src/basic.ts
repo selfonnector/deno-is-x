@@ -29,9 +29,9 @@ export function isUndefined(target: any): target is undefined {
 export function is<T extends string | number | bigint | boolean | symbol>(value: T) {
     return (target: any): target is T => target === value
 }
-export function isArray_<E>(elemVld: Validation<E>): Validation<E[]>
-export function isArray_<E, Length extends number>(elemVld: Validation<E>, length: Length): Validation<Tuple<E, Length>>
-export function isArray_(elemVld: Validation<any>, length?: number) {
+export function isArray_<E>(elemVld: Validation<any, E>): Validation<any, E[]>
+export function isArray_<E, Length extends number>(elemVld: Validation<any, E>, length: Length): Validation<any, Tuple<E, Length>>
+export function isArray_(elemVld: Validation<any, any>, length?: number) {
     return (target: any) => {
         if (!isPlaneArray(target)) return false
         if (isNumber(length) && target.length !== length) return false
@@ -47,14 +47,14 @@ export function isTuple_<T extends any[]>(...elemVlds: ValidationMap<T>) {
         return true
     }
 }
-export function isAssoc_<E>(elemVld: Validation<E>) {
+export function isAssoc_<E>(elemVld: Validation<any, E>) {
     return (target: any): target is Assoc<E> => {
         if (!isPlaneObject(target)) return false
         for (const key of ownKeys(target)) if (!elemVld(target[key])) return false
         return true
     }
 }
-export function isDict_<E>(elemVld: Validation<E>) {
+export function isDict_<E>(elemVld: Validation<any, E>) {
     return (target: any): target is Dict<E> => {
         if (!isPlaneObject(target)) return false
         if (Object.getOwnPropertySymbols(target).length > 0) return false
@@ -62,7 +62,7 @@ export function isDict_<E>(elemVld: Validation<E>) {
         return true
     }
 }
-export function isAlbum_<E>(elemVld: Validation<E>) {
+export function isAlbum_<E>(elemVld: Validation<any, E>) {
     return (target: any): target is Album<E> => {
         if (!isPlaneObject(target)) return false
         if (Object.getOwnPropertyNames(target).length > 0) return false
@@ -70,8 +70,8 @@ export function isAlbum_<E>(elemVld: Validation<E>) {
         return true
     }
 }
-export function isStruct_<Schema extends Assoc<any>>(vldSchema: ValidationMap<Schema>): Validation<Schema>
-export function isStruct_<Schema extends Assoc<any>, OptKey extends Exclude<keyof Schema, keyof Object>>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]): Validation<Optionally<Schema, OptKey>>
+export function isStruct_<Schema extends Assoc<any>>(vldSchema: ValidationMap<Schema>): Validation<any, Schema>
+export function isStruct_<Schema extends Assoc<any>, OptKey extends Exclude<keyof Schema, keyof Object>>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]): Validation<any, Optionally<Schema, OptKey>>
 export function isStruct_<Schema extends Assoc<any>, OptKey extends Exclude<keyof Schema, keyof Object> = never>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]) {
     const hasStruct = hasStruct_(vldSchema, optionalKeys)
     return (target: any) => {
@@ -80,10 +80,10 @@ export function isStruct_<Schema extends Assoc<any>, OptKey extends Exclude<keyo
         return true
     }
 }
-export function hasStruct_<Schema extends Assoc<any>>(vldSchema: ValidationMap<Schema>): Validation<Schema & Assoc<any>>
-export function hasStruct_<Schema extends Assoc<any>, OptKey extends Exclude<keyof Schema, keyof Object>>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]): Validation<Optionally<Schema, OptKey> & Assoc<any>>
+export function hasStruct_<Schema extends Assoc<any>>(vldSchema: ValidationMap<Schema>): Validation<any, Schema & Assoc<any>>
+export function hasStruct_<Schema extends Assoc<any>, OptKey extends Exclude<keyof Schema, keyof Object>>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]): Validation<any, Optionally<Schema, OptKey> & Assoc<any>>
 export function hasStruct_<Schema extends Assoc<any>, OptKey extends Exclude<keyof Schema, keyof Object> = never>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]) {
-    const vlds: Assoc<Validation<any>> = { ...vldSchema }
+    const vlds: Assoc<Validation<any, any>> = { ...vldSchema }
     const optKeys = optionalKeys ? optionalKeys as (keyof typeof vlds)[] : []
     for (const key of optKeys) vlds[key] = isUnion_(vlds[key], isUndefined)
     return (target: any) => {
@@ -105,28 +105,28 @@ export function isUnion_<Cases extends any[]>(...caseVlds: ValidationMap<Cases>)
         return false
     }
 }
-export function concat<A, B extends A, C extends B>(a: Validation<B, A>, b: Validation<C, B>) {
+export function concat<A, B extends A, C extends B>(a: Validation<A, B>, b: Validation<B, C>) {
     return (target: A): target is C => a(target) && b(target)
 }
-export function dev<A, B extends A>(thisVld: Validation<B, A>) {
+export function dev<A, B extends A>(thisVld: Validation<A, B>) {
     return {
         v: thisVld,
-        add<C extends B>(vld: Validation<C, B>) { 
+        add<C extends B>(vld: Validation<B, C>) { 
             return dev(concat(thisVld, vld))
         }
     }
 }
-export function ref<A extends (string | number | bigint | boolean | symbol)[], T extends Target, Target>(vldGet: (...args: A) => Validation<T, Target>, ...args: A): Validation<T, Target>
-export function ref<A extends any[], T extends Target, Target>(vldGet: (...args: A) => Validation<T, Target>, ...args: A): Validation<T, Target>
-export function ref<A extends any[], T extends Target, Target>(vldGet: (...args: A) => Validation<T, Target>, ...args: A) {
-    let cacheVld: Validation<T, Target> | null = null
+export function ref<A extends (string | number | bigint | boolean | symbol)[], Target, Valid extends Target>(vldGet: (...args: A) => Validation<Target, Valid>, ...args: A): Validation<Target, Valid>
+export function ref<A extends any[], Target, Valid extends Target>(vldGet: (...args: A) => Validation<Target, Valid>, ...args: A): Validation<Target, Valid>
+export function ref<A extends any[], Target, Valid extends Target>(vldGet: (...args: A) => Validation<Target, Valid>, ...args: A) {
+    let cacheVld: Validation<Target, Valid> | null = null
     return (target: Target) => {
         if (cacheVld === null) cacheVld = vldGet(...args)
         return cacheVld(target)
     }
 }
-type ValidationMap<T> = {
-    [P in keyof T]: Validation<T[P]>
+type ValidationMap<Valid> = {
+    [P in keyof Valid]: Validation<any, Valid[P]>
 }
 type Assoc<E> = {
     [key: string | symbol]: E
