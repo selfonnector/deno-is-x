@@ -3,6 +3,7 @@ import {
 } from 'https://deno.land/std@0.108.0/testing/asserts.ts'
 import {
     Validation,
+    TargetType,
     ValidType,
     isAny,
     isNever,
@@ -273,6 +274,7 @@ if (ref(is, '0')(target)) {
 if (ref(() => is1_1or__1__)('1'/* : 1 | "1" */)) {
     target // : 1
 }
+type _1or__1__ = TargetType<typeof is1_1or__1__> // : 1 | "1"
 type _String = ValidType<typeof isString> // : string
 type _LoopNest = ValidType<typeof isLoopNest> // : { a?: LoopNest | undefined; }
 Deno.test({
