@@ -30,7 +30,7 @@ export function is<T extends string | number | bigint | boolean | symbol>(value:
     return (target: any): target is T => target === value
 }
 export function isArray_<E>(elemVld: Validation<E>): Validation<E[]>
-export function isArray_<E, LENGTH extends number>(elemVld: Validation<E>, length: LENGTH): Validation<Tuple<E, LENGTH>>
+export function isArray_<E, Length extends number>(elemVld: Validation<E>, length: Length): Validation<Tuple<E, Length>>
 export function isArray_(elemVld: Validation<any>, length?: number) {
     return (target: any) => {
         if (!isPlaneArray(target)) return false
@@ -70,9 +70,9 @@ export function isAlbum_<E>(elemVld: Validation<E>) {
         return true
     }
 }
-export function isStruct_<SCHEMA extends Assoc<any>>(vldSchema: ValidationMap<SCHEMA>): Validation<SCHEMA>
-export function isStruct_<SCHEMA extends Assoc<any>, OPT_KEY extends Exclude<keyof SCHEMA, keyof Object>>(vldSchema: ValidationMap<SCHEMA>, optionalKeys?: OPT_KEY[]): Validation<Optionally<SCHEMA, OPT_KEY>>
-export function isStruct_<SCHEMA extends Assoc<any>, OPT_KEY extends Exclude<keyof SCHEMA, keyof Object> = never>(vldSchema: ValidationMap<SCHEMA>, optionalKeys?: OPT_KEY[]) {
+export function isStruct_<Schema extends Assoc<any>>(vldSchema: ValidationMap<Schema>): Validation<Schema>
+export function isStruct_<Schema extends Assoc<any>, OptKey extends Exclude<keyof Schema, keyof Object>>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]): Validation<Optionally<Schema, OptKey>>
+export function isStruct_<Schema extends Assoc<any>, OptKey extends Exclude<keyof Schema, keyof Object> = never>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]) {
     const hasStruct = hasStruct_(vldSchema, optionalKeys)
     return (target: any) => {
         if (!hasStruct(target)) return false
@@ -80,9 +80,9 @@ export function isStruct_<SCHEMA extends Assoc<any>, OPT_KEY extends Exclude<key
         return true
     }
 }
-export function hasStruct_<SCHEMA extends Assoc<any>>(vldSchema: ValidationMap<SCHEMA>): Validation<SCHEMA & Assoc<any>>
-export function hasStruct_<SCHEMA extends Assoc<any>, OPT_KEY extends Exclude<keyof SCHEMA, keyof Object>>(vldSchema: ValidationMap<SCHEMA>, optionalKeys?: OPT_KEY[]): Validation<Optionally<SCHEMA, OPT_KEY> & Assoc<any>>
-export function hasStruct_<SCHEMA extends Assoc<any>, OPT_KEY extends Exclude<keyof SCHEMA, keyof Object> = never>(vldSchema: ValidationMap<SCHEMA>, optionalKeys?: OPT_KEY[]) {
+export function hasStruct_<Schema extends Assoc<any>>(vldSchema: ValidationMap<Schema>): Validation<Schema & Assoc<any>>
+export function hasStruct_<Schema extends Assoc<any>, OptKey extends Exclude<keyof Schema, keyof Object>>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]): Validation<Optionally<Schema, OptKey> & Assoc<any>>
+export function hasStruct_<Schema extends Assoc<any>, OptKey extends Exclude<keyof Schema, keyof Object> = never>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]) {
     const vlds: Assoc<Validation<any>> = { ...vldSchema }
     const optKeys = optionalKeys ? optionalKeys as (keyof typeof vlds)[] : []
     for (const key of optKeys) vlds[key] = isUnion_(vlds[key], isUndefined)
@@ -99,8 +99,8 @@ export function hasStruct_<SCHEMA extends Assoc<any>, OPT_KEY extends Exclude<ke
         return true
     }
 }
-export function isUnion_<CASES extends any[]>(...caseVlds: ValidationMap<CASES>) {
-    return (target: any): target is CASES[number] => {
+export function isUnion_<Cases extends any[]>(...caseVlds: ValidationMap<Cases>) {
+    return (target: any): target is Cases[number] => {
         for (const caseVld of caseVlds) if (caseVld(target)) return true
         return false
     }
@@ -116,11 +116,11 @@ export function dev<A, B extends A>(thisVld: Validation<B, A>) {
         }
     }
 }
-export function ref<A extends (string | number | bigint | boolean | symbol)[], T extends TARGET, TARGET>(vldGet: (...args: A) => Validation<T, TARGET>, ...args: A): Validation<T, TARGET>
-export function ref<A extends any[], T extends TARGET, TARGET>(vldGet: (...args: A) => Validation<T, TARGET>, ...args: A): Validation<T, TARGET>
-export function ref<A extends any[], T extends TARGET, TARGET>(vldGet: (...args: A) => Validation<T, TARGET>, ...args: A) {
-    let cacheVld: Validation<T, TARGET> | null = null
-    return (target: TARGET) => {
+export function ref<A extends (string | number | bigint | boolean | symbol)[], T extends Target, Target>(vldGet: (...args: A) => Validation<T, Target>, ...args: A): Validation<T, Target>
+export function ref<A extends any[], T extends Target, Target>(vldGet: (...args: A) => Validation<T, Target>, ...args: A): Validation<T, Target>
+export function ref<A extends any[], T extends Target, Target>(vldGet: (...args: A) => Validation<T, Target>, ...args: A) {
+    let cacheVld: Validation<T, Target> | null = null
+    return (target: Target) => {
         if (cacheVld === null) cacheVld = vldGet(...args)
         return cacheVld(target)
     }
@@ -139,7 +139,7 @@ type Album<E> = {
 }
 type PropKey<T = any> = keyof T & (string | symbol)
 type Optionally<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
-type Tuple<T, LENGTH extends number, BASE extends any[] = []> = BASE['length'] extends LENGTH ? LENGTH extends BASE['length'] ? BASE : [...BASE, ...T[]] : Tuple<T, LENGTH, [...BASE, T]>
+type Tuple<T, Length extends number, Base extends any[] = []> = Base['length'] extends Length ? Length extends Base['length'] ? Base : [...Base, ...T[]] : Tuple<T, Length, [...Base, T]>
 function isObject(target: any): target is object {
     return typeof target === 'object' && target !== null
 }
