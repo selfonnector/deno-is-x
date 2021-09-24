@@ -23,6 +23,7 @@ import {
     hasStruct_,
     isUnion_,
     concat,
+    dev,
     ref
 } from './mod.ts'
 const symbolA = Symbol(0)
@@ -145,6 +146,7 @@ function assertEqualsForValidations(target: any, expected: typeof vldsExpected) 
     assertEquals<boolean>(isUnion_(is('0'), is(0n), is(symbolA), isUndefined, isStruct_({}))(target), expected.isUnion_ptnA)
     assertEquals<boolean>(isUnion_(is(0), is(false), isNull, isArray_(isNever))(target), expected.isUnion_ptnB)
     assertEquals<boolean>(concat(isUnion_(is(1), is('1')), is1_1or__1__)(target), expected.is1)
+    assertEquals<boolean>(dev(isUnion_(is(1), is('1'))).add(is1_1or__1__).v(target), expected.is1)
     assertEquals<boolean>(ref(is, '0')(target), expected.ref_is__0__)
     assertEquals<boolean>(isLoopNest(target), expected.isLoopNest)
 }
@@ -261,6 +263,9 @@ if (concat(isString, is('0'))(target)) {
 }
 if (concat(isUnion_(is(1), is('1')), is1_1or__1__)(target)) {
     target // : 1
+}
+if (dev(isString).add(is('0')).v(target)) {
+    target // : "0"
 }
 if (ref(is, '0')(target)) {
     target // : "0"
