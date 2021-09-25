@@ -5,7 +5,7 @@ import {
     Validation,
     TargetType,
     ValidType,
-    isAny,
+    isUnknown,
     isNever,
     isString,
     isNumber,
@@ -33,7 +33,7 @@ function is1_1or__1__(target: 1 | '1'): target is 1 {
     return target === 1
 }
 type LoopNest = { a?: LoopNest }
-function isLoopNest_(): Validation<any, LoopNest> {
+function isLoopNest_(): Validation<unknown, LoopNest> {
     return isStruct_({
         a: ref(isLoopNest_)
     }, ['a'])
@@ -95,8 +95,8 @@ const vldsExpected = {
     ref_is__0__: false,
     isLoopNest: false
 }
-function assertEqualsForValidations(target: any, expected: typeof vldsExpected) {
-    assertEquals<boolean>(isAny(target), true)
+function assertEqualsForValidations(target: unknown, expected: typeof vldsExpected) {
+    assertEquals<boolean>(isUnknown(target), true)
     assertEquals<boolean>(isNever(target), false)
     assertEquals<boolean>(isString(target), expected.isString)
     assertEquals<boolean>(isNumber(target), expected.isNumber)
@@ -151,15 +151,15 @@ function assertEqualsForValidations(target: any, expected: typeof vldsExpected) 
     assertEquals<boolean>(ref(is, '0')(target), expected.ref_is__0__)
     assertEquals<boolean>(isLoopNest(target), expected.isLoopNest)
 }
-function assertEquals_Vlds(target: any, trueExpectedKeys: (keyof Parameters<typeof assertEqualsForValidations>['1'])[]) {
+function assertEquals_Vlds(target: unknown, trueExpectedKeys: (keyof Parameters<typeof assertEqualsForValidations>['1'])[]) {
     const expected = { ...vldsExpected }
     for (const key of trueExpectedKeys) expected[key] = true
     assertEqualsForValidations(target, expected)
 }
 // Type test
-let target: any
-if (isAny(target)) {
-    target // : any
+let target: unknown
+if (isUnknown(target)) {
+    target // : unknown
 }
 if (isNever(target)) {
     target // : never
@@ -246,15 +246,15 @@ if (hasStruct_({ a: is('0'), b: is(0) })(target)) {
     target // : { a: "0"; b: 0; }
     target.a // : "0"
     target.b // : 0
-    target.c // : any
-    target.valueOf // : Object.valueOf(): Object (It may be 'any' to be exact, but ...)
+    target.c // : unknown
+    target.valueOf // : Object.valueOf(): Object (It may be 'unknown' to be exact, but ...)
 }
 if (hasStruct_({ a: is('0'), b: is(0) }, ['b'])(target)) {
-    target // : Omit<{ a: "0"; b: 0; }, "b"> & Partial<Pick<{ a: "0"; b: 0; }, "b">> & Assoc<any> = Optionally<{ a: "0"; b: 0; }, "b"> &  & Assoc<any>
+    target // : Omit<{ a: "0"; b: 0; }, "b"> & Partial<Pick<{ a: "0"; b: 0; }, "b">> & Assoc<unknown> = Optionally<{ a: "0"; b: 0; }, "b"> &  & Assoc<unknown>
     target.a // : "0"
     target.b // ?: 0 | undefined
-    target.c // : any
-    target.valueOf // : Object.valueOf(): Object (It may be 'any' to be exact, but ...)
+    target.c // : unknown
+    target.valueOf // : Object.valueOf(): Object (It may be 'unknown' to be exact, but ...)
 }
 if (isUnion_(is('0'), is(0))(target)) {
     target // : 0 | "0"
