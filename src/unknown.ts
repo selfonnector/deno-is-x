@@ -11,6 +11,9 @@ export function isString(target: unknown): target is string {
 export function isNumber(target: unknown): target is number {
     return typeof target === 'number'
 }
+export function isInteger(target: unknown): target is number {
+    return Number.isInteger(target)
+}
 export function isBigInt(target: unknown): target is bigint {
     return typeof target === 'bigint'
 }
