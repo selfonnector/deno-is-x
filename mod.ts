@@ -1,2 +1,2 @@
-export * from './mod/core.ts'
-export * from './mod/vs_unknown.ts'
+export * from './src/core.ts'
+export * from './src/vs_unknown.ts'
