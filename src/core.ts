@@ -12,11 +12,9 @@ export function dev<A, B extends A>(thisVld: Validation<A, B>) {
         }
     }
 }
-export function ref<A extends (string | number | bigint | boolean | symbol)[], Target, Valid extends Target>(vldGet: (...args: A) => Validation<Target, Valid>, ...args: A): Validation<Target, Valid>
-export function ref<A extends unknown[], Target, Valid extends Target>(vldGet: (...args: A) => Validation<Target, Valid>, ...args: A): Validation<Target, Valid>
-export function ref<A extends unknown[], Target, Valid extends Target>(vldGet: (...args: A) => Validation<Target, Valid>, ...args: A) {
+export function ref<Args extends unknown[], Target, Valid extends Target>(vldGet: (...args: Args) => Validation<Target, Valid>, ...args: Args) {
     let cacheVld: Validation<Target, Valid> | null = null
-    return (target: Target) => {
+    return (target: Target): target is Valid => {
         if (cacheVld === null) cacheVld = vldGet(...args)
         return cacheVld(target)
     }

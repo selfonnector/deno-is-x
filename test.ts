@@ -269,10 +269,11 @@ if (dev(isString).add(is('0')).v(target)) {
     target // : "0"
 }
 if (ref(is, '0')(target)) {
-    target // : "0"
+    target // : string (be careful!)
 }
-if (ref(() => is1_1or__1__)('1'/* : 1 | "1" */)) {
-    target // : 1
+let target2: 1 | '1' = 1
+if (ref(() => is1_1or__1__)(target2)) {
+    target2 // : 1
 }
 type _1or__1__ = TargetType<typeof is1_1or__1__> // : 1 | "1"
 type _String = ValidType<typeof isString> // : string
