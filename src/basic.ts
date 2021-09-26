@@ -108,6 +108,21 @@ export function isUnion_<Cases extends unknown[]>(...caseVlds: ValidationMap<Cas
         return false
     }
 }
+export function gt(refVal: number) {
+    return (target: number): target is number => target > refVal
+}
+export function lt(refVal: number) {
+    return (target: number): target is number => target < refVal
+}
+export function ge(refVal: number) {
+    return (target: number): target is number => target >= refVal
+}
+export function le(refVal: number) {
+    return (target: number): target is number => target <= refVal
+}
+export function range(min: number, max: number) {
+    return (target: number): target is number => target >= min && target <= max
+}
 type ValidationMap<Valid> = {
     [P in keyof Valid]: Validation<unknown, Valid[P]>
 }
