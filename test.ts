@@ -5,6 +5,8 @@ import {
     Validation,
     TargetType,
     ValidType,
+    append,
+    expand,
     isUnknown,
     isNever,
     isString,
@@ -144,6 +146,10 @@ function assertEqualsForValidations(target: unknown, expected: typeof vldsExpect
     assertEquals<boolean>(isUnion_()(target), expected.isEmptyUnion)
     assertEquals<boolean>(isUnion_(is('0'), is(0n), is(symbolA), isUndefined, isStruct_({}))(target), expected.isUnion_ptnA)
     assertEquals<boolean>(isUnion_(is(0), is(false), isNull, isArray_(isNever))(target), expected.isUnion_ptnB)
+    assertEquals<boolean>(append(isUnion_(is(1), is('1'))).and(is1_1or__1__).x(target), expected.is1)
+    assertEquals<boolean>(append(isUnion_(is(1), is('1')), is1_1or__1__)(target), expected.is1)
+    assertEquals<boolean>(expand(is('0')).or(is(0n)).or(is(symbolA)).or(isUndefined).or(isStruct_({})).x(target), expected.isUnion_ptnA)
+    assertEquals<boolean>(expand(expand(expand(expand(is('0'), is(0n)), is(symbolA)), isUndefined), isStruct_({}))(target), expected.isUnion_ptnA)
     assertEquals<boolean>(ref(is, '0')(target), expected.ref_is__0__)
     assertEquals<boolean>(isLoopNest(target), expected.isLoopNest)
 }
@@ -255,10 +261,34 @@ if (hasStruct_({ a: is('0'), b: is(0) }, ['b'])(target)) {
 if (isUnion_(is('0'), is(0))(target)) {
     target // : 0 | "0"
 }
+let target2 = 1 as 1 | '1'
+if (append(isString, is('0'))(target)) {
+    target // : "0"
+}
+if (append(isString).and(is('0')).x(target)) {
+    target // : "0"
+}
+if (append(isUnion_(is(1), is('1')), is1_1or__1__)(target)) {
+    target // : 1
+}
+if (append(isUnion_(is(1), is('1'))).and(is1_1or__1__).x(target)) {
+    target // : 1
+}
+if (expand(isString, is('0'))(target)) {
+    target // : string
+}
+if (expand(isString).or(is('0')).x(target)) {
+    target // : string
+}
+if (expand(isUnion_(is(1), is('1')), is1_1or__1__)(target2)) {
+    target2 // : 1 | "1"
+}
+if (expand(is1_1or__1__).or(isUnion_(is(1), is('1'))).x(target2)) {
+    target2 // : 1 | "1"
+}
 if (ref(is, '0')(target)) {
     target // : string (be careful!)
 }
-let target2: 1 | '1' = 1
 if (ref(() => is1_1or__1__)(target2)) {
     target2 // : 1
 }
