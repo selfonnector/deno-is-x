@@ -1,4 +1,4 @@
-import type { Validation } from './core.ts'
+import { Validation, join } from './core.ts'
 export function isUnknown(_target: unknown): _target is unknown {
     return true
 }
@@ -11,7 +11,7 @@ export function isString(target: unknown): target is string {
 export function isNumber(target: unknown): target is number {
     return typeof target === 'number'
 }
-export function isInteger(target: unknown): target is number {
+export function isInt(target: unknown): target is number {
     return Number.isInteger(target)
 }
 export function isBigInt(target: unknown): target is bigint {
@@ -29,8 +29,25 @@ export function isNull(target: unknown): target is null {
 export function isUndefined(target: unknown): target is undefined {
     return typeof target === 'undefined'
 }
-export function is<T extends string | number | bigint | boolean | symbol>(value: T) {
-    return (target: unknown): target is T => target === value
+export function eq<T extends string | number | bigint | boolean | symbol>(base: T) {
+    return (target: unknown): target is T => target === base
+}
+export function gt(base: number) {
+    return (target: number): target is number => target > base
+}
+export function lt(base: number) {
+    return (target: number): target is number => target < base
+}
+export function ge(base: number) {
+    return (target: number): target is number => target >= base
+}
+export function le(base: number) {
+    return (target: number): target is number => target <= base
+}
+export function len<Length extends number>(vld: Validation<number ,Length>) {
+    return <T extends string | unknown[], E extends T extends (infer E)[] ? E : unknown>(target: T | (T extends any[] ? Tuple<E, Length> : T)): target is T extends any[] ? Tuple<E, Length> : T => {
+        return vld((<T>target).length)
+    }
 }
 export function isArray_<E>(elemVld: Validation<unknown, E>): Validation<unknown, E[]>
 export function isArray_<E, Length extends number>(elemVld: Validation<unknown, E>, length: Length): Validation<unknown, Tuple<E, Length>>
@@ -88,7 +105,7 @@ export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude
 export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object> = never>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]) {
     const vlds: Assoc<Validation<unknown, unknown>> = { ...vldSchema }
     const optKeys = optionalKeys ? optionalKeys as (keyof typeof vlds)[] : []
-    for (const key of optKeys) vlds[key] = isUnion_(vlds[key], isUndefined)
+    for (const key of optKeys) vlds[key] = join(vlds[key], isUndefined)
     return (target: unknown) => {
         if (!isPlaneObject(target)) return false
         for (const key of ownKeys(vlds)) {
@@ -101,27 +118,6 @@ export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude
         }
         return true
     }
-}
-export function isUnion_<Cases extends unknown[]>(...caseVlds: ValidationMap<Cases>) {
-    return (target: unknown): target is Cases[number] => {
-        for (const caseVld of caseVlds) if (caseVld(target)) return true
-        return false
-    }
-}
-export function gt(refVal: number) {
-    return (target: number): target is number => target > refVal
-}
-export function lt(refVal: number) {
-    return (target: number): target is number => target < refVal
-}
-export function ge(refVal: number) {
-    return (target: number): target is number => target >= refVal
-}
-export function le(refVal: number) {
-    return (target: number): target is number => target <= refVal
-}
-export function range(min: number, max: number) {
-    return (target: number): target is number => target >= min && target <= max
 }
 type ValidationMap<Valid> = {
     [P in keyof Valid]: Validation<unknown, Valid[P]>

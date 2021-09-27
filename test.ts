@@ -7,25 +7,30 @@ import {
     ValidType,
     extend,
     join,
+    ref,
     isUnknown,
     isNever,
     isString,
     isNumber,
+    isInt,
     isBigInt,
     isBoolean,
     isSymbol,
     isNull,
     isUndefined,
-    is,
+    eq,
+    gt,
+    lt,
+    ge,
+    le,
+    len,
     isArray_,
     isTuple_,
     isAssoc_,
     isDict_,
     isAlbum_,
     isStruct_,
-    hasStruct_,
-    isUnion_,
-    ref
+    hasStruct_
 } from './mod.ts'
 const symbolA = Symbol(0)
 const symbolB = Symbol(0)
@@ -105,52 +110,52 @@ function assertEqualsForValidations(target: unknown, expected: typeof vldsExpect
     assertEquals<boolean>(isSymbol(target), expected.isSymbol)
     assertEquals<boolean>(isNull(target), expected.isNull)
     assertEquals<boolean>(isUndefined(target), expected.isUndefined)
-    assertEquals<boolean>(is('0')(target), expected.is__0__)
-    assertEquals<boolean>(is(0)(target), expected.is0)
-    assertEquals<boolean>(is(0n)(target), expected.is0n)
-    assertEquals<boolean>(is(false)(target), expected.isFalse)
-    assertEquals<boolean>(is(symbolA)(target), expected.isSymbolA)
+    assertEquals<boolean>(eq('0')(target), expected.is__0__)
+    assertEquals<boolean>(eq(0)(target), expected.is0)
+    assertEquals<boolean>(eq(0n)(target), expected.is0n)
+    assertEquals<boolean>(eq(false)(target), expected.isFalse)
+    assertEquals<boolean>(eq(symbolA)(target), expected.isSymbolA)
     assertEquals<boolean>(isArray_(isNever)(target), expected.isEmptyArray)
     assertEquals<boolean>(isArray_(isString)(target), expected.isStringArray)
-    assertEquals<boolean>(isArray_(is('0'))(target), expected.is__0__Array)
-    assertEquals<boolean>(isArray_(is('0'), 0)(target), expected.is__0__Array_LEN_0)
-    assertEquals<boolean>(isArray_(is('0'), 1)(target), expected.is__0__Array_LEN_1)
-    assertEquals<boolean>(isArray_(is('0'), 2)(target), expected.is__0__Array_LEN_2)
+    assertEquals<boolean>(isArray_(eq('0'))(target), expected.is__0__Array)
+    assertEquals<boolean>(isArray_(eq('0'), 0)(target), expected.is__0__Array_LEN_0)
+    assertEquals<boolean>(isArray_(eq('0'), 1)(target), expected.is__0__Array_LEN_1)
+    assertEquals<boolean>(isArray_(eq('0'), 2)(target), expected.is__0__Array_LEN_2)
     assertEquals<boolean>(isTuple_()(target), expected.isEmptyTuple)
     assertEquals<boolean>(isTuple_(isString)(target), expected.isTuple_0_String)
     assertEquals<boolean>(isTuple_(isString, isString)(target), expected.isTuple_0_String_1_String)
-    assertEquals<boolean>(isTuple_(is('0'), is('0'))(target), expected.isTuple_0___0___1___0__)
+    assertEquals<boolean>(isTuple_(eq('0'), eq('0'))(target), expected.isTuple_0___0___1___0__)
     assertEquals<boolean>(isAssoc_(isNever)(target), expected.isEmptyAssoc)
     assertEquals<boolean>(isAssoc_(isString)(target), expected.isStringAssoc)
-    assertEquals<boolean>(isAssoc_(is('0'))(target), expected.is__0__Assoc)
+    assertEquals<boolean>(isAssoc_(eq('0'))(target), expected.is__0__Assoc)
     assertEquals<boolean>(isDict_(isNever)(target), expected.isEmptyDict)
     assertEquals<boolean>(isDict_(isString)(target), expected.isStringDict)
-    assertEquals<boolean>(isDict_(is('0'))(target), expected.is__0__Dict)
+    assertEquals<boolean>(isDict_(eq('0'))(target), expected.is__0__Dict)
     assertEquals<boolean>(isAlbum_(isNever)(target), expected.isEmptyAlbum)
     assertEquals<boolean>(isAlbum_(isString)(target), expected.isStringAlbum)
-    assertEquals<boolean>(isAlbum_(is('0'))(target), expected.is__0__Album)
+    assertEquals<boolean>(isAlbum_(eq('0'))(target), expected.is__0__Album)
     assertEquals<boolean>(isStruct_({})(target), expected.isEmptyStruct)
     assertEquals<boolean>(isStruct_({ a: isString })(target), expected.isStruct___a___String)
     assertEquals<boolean>(isStruct_({ a: isString, b: isString })(target), expected.isStruct___a___String___b___String)
-    assertEquals<boolean>(isStruct_({ a: is('0'), b: is('0') })(target), expected.isStruct___a_____0_____b_____0__)
-    assertEquals<boolean>(isStruct_({ a: is('0'), b: is('0') }, ['a', 'b'])(target), expected.isStruct___a_____0_____b_____0___OPT___a_____b__)
-    assertEquals<boolean>(isStruct_({ a: is('0'), b: is('0') }, ['b'])(target), expected.isStruct___a_____0_____b_____0___OPT___b__)
-    assertEquals<boolean>(isStruct_({ [symbolA]: is('0'), [symbolB]: is('0') }, [symbolB])(target), expected.isStruct_SymbolA___0___SymbolB___0___OPT_SymbolB)
+    assertEquals<boolean>(isStruct_({ a: eq('0'), b: eq('0') })(target), expected.isStruct___a_____0_____b_____0__)
+    assertEquals<boolean>(isStruct_({ a: eq('0'), b: eq('0') }, ['a', 'b'])(target), expected.isStruct___a_____0_____b_____0___OPT___a_____b__)
+    assertEquals<boolean>(isStruct_({ a: eq('0'), b: eq('0') }, ['b'])(target), expected.isStruct___a_____0_____b_____0___OPT___b__)
+    assertEquals<boolean>(isStruct_({ [symbolA]: eq('0'), [symbolB]: eq('0') }, [symbolB])(target), expected.isStruct_SymbolA___0___SymbolB___0___OPT_SymbolB)
     assertEquals<boolean>(hasStruct_({})(target), expected.hasEmptyStruct)
     assertEquals<boolean>(hasStruct_({ a: isString })(target), expected.hasStruct___a___String)
     assertEquals<boolean>(hasStruct_({ a: isString, b: isString })(target), expected.hasStruct___a___String___b___String)
-    assertEquals<boolean>(hasStruct_({ a: is('0'), b: is('0') })(target), expected.hasStruct___a_____0_____b_____0__)
-    assertEquals<boolean>(hasStruct_({ a: is('0'), b: is('0') }, ['a', 'b'])(target), expected.hasStruct___a_____0_____b_____0___OPT___a_____b__)
-    assertEquals<boolean>(hasStruct_({ a: is('0'), b: is('0') }, ['b'])(target), expected.hasStruct___a_____0_____b_____0___OPT___b__)
-    assertEquals<boolean>(hasStruct_({ [symbolA]: is('0'), [symbolB]: is('0') }, [symbolB])(target), expected.hasStruct_SymbolA___0___SymbolB___0___OPT_SymbolB)
-    assertEquals<boolean>(isUnion_()(target), expected.isEmptyUnion)
-    assertEquals<boolean>(isUnion_(is('0'), is(0n), is(symbolA), isUndefined, isStruct_({}))(target), expected.isUnion_ptnA)
-    assertEquals<boolean>(isUnion_(is(0), is(false), isNull, isArray_(isNever))(target), expected.isUnion_ptnB)
-    assertEquals<boolean>(extend(isUnion_(is(1), is('1'))).and(is1_1or__1__).x(target), expected.is1)
-    assertEquals<boolean>(extend(isUnion_(is(1), is('1')), is1_1or__1__)(target), expected.is1)
-    assertEquals<boolean>(join(is('0')).or(is(0n)).or(is(symbolA)).or(isUndefined).or(isStruct_({})).x(target), expected.isUnion_ptnA)
-    assertEquals<boolean>(join(join(join(join(is('0'), is(0n)), is(symbolA)), isUndefined), isStruct_({}))(target), expected.isUnion_ptnA)
-    assertEquals<boolean>(ref(is, '0')(target), expected.ref_is__0__)
+    assertEquals<boolean>(hasStruct_({ a: eq('0'), b: eq('0') })(target), expected.hasStruct___a_____0_____b_____0__)
+    assertEquals<boolean>(hasStruct_({ a: eq('0'), b: eq('0') }, ['a', 'b'])(target), expected.hasStruct___a_____0_____b_____0___OPT___a_____b__)
+    assertEquals<boolean>(hasStruct_({ a: eq('0'), b: eq('0') }, ['b'])(target), expected.hasStruct___a_____0_____b_____0___OPT___b__)
+    assertEquals<boolean>(hasStruct_({ [symbolA]: eq('0'), [symbolB]: eq('0') }, [symbolB])(target), expected.hasStruct_SymbolA___0___SymbolB___0___OPT_SymbolB)
+    assertEquals<boolean>(join(isNever, isNever)(target), expected.isEmptyUnion)
+    assertEquals<boolean>(join(eq('0')).or(eq(0n)).or(eq(symbolA)).or(isUndefined).or(isStruct_({})).x(target), expected.isUnion_ptnA)
+    assertEquals<boolean>(join(eq(0)).or(eq(false)).or(isNull).or(isArray_(isNever)).x(target), expected.isUnion_ptnB)
+    assertEquals<boolean>(extend(join(eq(1), eq('1'))).and(is1_1or__1__).x(target), expected.is1)
+    assertEquals<boolean>(extend(join(eq(1), eq('1')), is1_1or__1__)(target), expected.is1)
+    assertEquals<boolean>(join(eq('0')).or(eq(0n)).or(eq(symbolA)).or(isUndefined).or(isStruct_({})).x(target), expected.isUnion_ptnA)
+    assertEquals<boolean>(join(join(join(join(eq('0'), eq(0n)), eq(symbolA)), isUndefined), isStruct_({}))(target), expected.isUnion_ptnA)
+    assertEquals<boolean>(ref(eq, '0')(target), expected.ref_is__0__)
     assertEquals<boolean>(isLoopNest(target), expected.isLoopNest)
 }
 function assertEquals_Vlds(target: unknown, trueExpectedKeys: (keyof Parameters<typeof assertEqualsForValidations>['1'])[]) {
@@ -178,19 +183,19 @@ if (isBoolean(target)) {
     target // : boolean
     target.valueOf
 }
-if (is('0')(target)) {
+if (eq('0')(target)) {
     target // : "0"
     target.anchor
 }
-if (is(0)(target)) {
+if (eq(0)(target)) {
     target // : 0
     target.toExponential
 }
-if (is(false)(target)) {
+if (eq(false)(target)) {
     target // : false
     target.valueOf
 }
-if (is(symbolA)(target)) {
+if (eq(symbolA)(target)) {
     target // : typeof symbolA
     target.description
 }
@@ -200,93 +205,93 @@ if (isNull(target)) {
 if (isUndefined(target)) {
     target // : undefined
 }
-if (isArray_(is('0'))(target)) {
+if (isArray_(eq('0'))(target)) {
     target // : "0"[]
     target.pop
 }
-if (isArray_(is('0'), 3)(target)) {
+if (isArray_(eq('0'), 3)(target)) {
     target // : ["0", "0", "0"]
     target.pop
 }
-if (isArray_(is('0'), 3 as number)(target)) {
+if (isArray_(eq('0'), 3 as number)(target)) {
     target // : "0"[]
     target.pop
 }
-if (isTuple_(is('0'), is(0))(target)) {
+if (isTuple_(eq('0'), eq(0))(target)) {
     target // : ["0", 0]
     target.pop
 }
-if (isAssoc_(is('0'))(target)) {
+if (isAssoc_(eq('0'))(target)) {
     target // : Assoc<"0"> = { [key: string | symbol]: "0" }
     target.a // : "0" (It may be '"0" | undefined' to be exact, but ...)
     target[symbolA] // : "0" (It may be '"0" | undefined' to be exact, but ...)
     target.valueOf // : Object.valueOf(): Object (It may be '"0" | undefined | Object.valueOf(): Object' to be exact, but ...)
 }
-if (isDict_(is('0'))(target)) {
+if (isDict_(eq('0'))(target)) {
     target // : Dict<"0"> = { [key: string]: "0" }
     target.a // : "0" (It may be '"0" | undefined' to be exact, but ...)
     target.valueOf // : Object.valueOf(): Object (It may be '"0" | undefined | Object.valueOf(): Object' to be exact, but ...)
 }
-if (isAlbum_(is('0'))(target)) {
+if (isAlbum_(eq('0'))(target)) {
     target // : Album<"0"> = { [key: symbol]: "0" }
     target[symbolA] // : "0" (It may be '"0" | undefined' to be exact, but ...)
     target.valueOf // : Object.valueOf(): Object
 }
-if (isStruct_({ a: is('0'), b: is(0) })(target)) {
+if (isStruct_({ a: eq('0'), b: eq(0) })(target)) {
     target // : { a: "0"; b: 0; }
     target.a // : "0"
     target.b // : 0
     target.valueOf // : Object.valueOf(): Object
 }
-if (isStruct_({ a: is('0'), b: is(0) }, ['b'])(target)) {
+if (isStruct_({ a: eq('0'), b: eq(0) }, ['b'])(target)) {
     target // : Optionally<{ a: "0"; b: 0; }, "b"> = { a: "0"; b?: 0 | undefined; }
     target.a // : "0"
     target.b // ?: 0 | undefined
     target.valueOf // : Object.valueOf(): Object
 }
-if (hasStruct_({ a: is('0'), b: is(0) })(target)) {
+if (hasStruct_({ a: eq('0'), b: eq(0) })(target)) {
     target // : { a: "0"; b: 0; }
     target.a // : "0"
     target.b // : 0
     target.c // : unknown
     target.valueOf // : Object.valueOf(): Object (It may be 'unknown' to be exact, but ...)
 }
-if (hasStruct_({ a: is('0'), b: is(0) }, ['b'])(target)) {
+if (hasStruct_({ a: eq('0'), b: eq(0) }, ['b'])(target)) {
     target // : Omit<{ a: "0"; b: 0; }, "b"> & Partial<Pick<{ a: "0"; b: 0; }, "b">> & Assoc<unknown> = Optionally<{ a: "0"; b: 0; }, "b"> &  & Assoc<unknown>
     target.a // : "0"
     target.b // ?: 0 | undefined
     target.c // : unknown
     target.valueOf // : Object.valueOf(): Object (It may be 'unknown' to be exact, but ...)
 }
-if (isUnion_(is('0'), is(0))(target)) {
+if (join(eq('0'), eq(0))(target)) {
     target // : 0 | "0"
 }
 let target2 = 1 as 1 | '1'
-if (extend(isString, is('0'))(target)) {
+if (extend(isString, eq('0'))(target)) {
     target // : "0"
 }
-if (extend(isString).and(is('0')).x(target)) {
+if (extend(isString).and(eq('0')).x(target)) {
     target // : "0"
 }
-if (extend(isUnion_(is(1), is('1')), is1_1or__1__)(target)) {
+if (extend(join(eq(1), eq('1')), is1_1or__1__)(target)) {
     target // : 1
 }
-if (extend(isUnion_(is(1), is('1'))).and(is1_1or__1__).x(target)) {
+if (extend(join(eq(1), eq('1'))).and(is1_1or__1__).x(target)) {
     target // : 1
 }
-if (join(isString, is('0'))(target)) {
+if (join(isString, eq('0'))(target)) {
     target // : string
 }
-if (join(isString).or(is('0')).x(target)) {
+if (join(isString).or(eq('0')).x(target)) {
     target // : string
 }
-if (join(isUnion_(is(1), is('1')), is1_1or__1__)(target2)) {
+if (join(join(eq(1), eq('1')), is1_1or__1__)(target2)) {
     target2 // : 1 | "1"
 }
-if (join(is1_1or__1__).or(isUnion_(is(1), is('1'))).x(target2)) {
+if (join(is1_1or__1__).or(join(eq(1), eq('1'))).x(target2)) {
     target2 // : 1 | "1"
 }
-if (ref(is, '0')(target)) {
+if (ref(eq, '0')(target)) {
     target // : string (be careful!)
 }
 if (ref(() => is1_1or__1__)(target2)) {
