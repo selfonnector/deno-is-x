@@ -1,38 +1,26 @@
-export type Validation<Target, Valid extends Target> = (target: Target) => target is Valid
-export type TargetType<V extends Validation<any, unknown>> = V extends Validation<infer Target, any> ? Target : never
-export type ValidType<V extends Validation<any, unknown>> = V extends Validation<any, infer Valid> ? Valid : never
-export type Extender<A, B extends A> = {
-    x: Validation<A, B>,
-    and<C extends B>(y: Validation<B, C>) : Extender<A, C>
-}
-export function extend<A, B extends A>(x: Validation<A, B>): Extender<A, B>
-export function extend<A, B extends A, C extends B>(x: Validation<A, B>, y: Validation<B, C>): Validation<A, C>
-export function extend<A, B extends A, C extends B>(x: Validation<A, B>, y?: Validation<B, C>) {
-    return y ? (target: A) => x(target) && y(target) : {
-        x: x,
-        and<C extends B>(y: Validation<B, C>) { 
-            return extend(extend(x, y))
+export type Vld<Tgt, Ok extends Tgt> = (tgt: Tgt) => tgt is Ok
+export type TgtType<V extends Vld<any, unknown>> = V extends Vld<infer Tgt, any> ? Tgt : never
+export type OkType<V extends Vld<any, unknown>> = V extends Vld<any, infer Ok> ? Ok : never
+export function extend<A, B extends A>(baseVld: Vld<A, B>) {
+    return {
+        vld: baseVld,
+        and<C extends B>(vld: Vld<B, C>) {
+            return extend((tgt: A): tgt is C => this.vld(tgt) && vld(tgt))
         }
     }
 }
-export type Joiner<A, B extends A> = {
-    x: Validation<A, B>,
-    or<C extends A>(y: Validation<A, C>) : Joiner<A, B | C>
-}
-export function join<A, B extends A>(x: Validation<A, B>): Joiner<A, B>
-export function join<A, B extends A, C extends A>(x: Validation<A, B>, y: Validation<A, C>): Validation<A, B | C>
-export function join<A, B extends A, C extends A>(x: Validation<A, B>, y?: Validation<A, C>) {
-    return y ? (target: A) => x(target) || y(target) : {
-        x: x,
-        or<C extends A>(y: Validation<A, C>) { 
-            return join(join(x, y))
+export function union<A, B extends A>(baseVld: Vld<A, B>) {
+    return {
+        vld: baseVld,
+        or<C extends A>(vld: Vld<A, C>) { 
+            return union((tgt: A): tgt is B | C => this.vld(tgt) || vld(tgt))
         }
     }
 }
-export function ref<Args extends unknown[], Target, Valid extends Target>(vldGet: (...args: Args) => Validation<Target, Valid>, ...args: Args) {
-    let cacheVld: Validation<Target, Valid> | null = null
-    return (target: Target): target is Valid => {
+export function ref<Args extends unknown[], Tgt, Ok extends Tgt>(vldGet: (...args: Args) => Vld<Tgt, Ok>, ...args: Args) {
+    let cacheVld: Vld<Tgt, Ok> | null = null
+    return (tgt: Tgt): tgt is Ok => {
         if (cacheVld === null) cacheVld = vldGet(...args)
-        return cacheVld(target)
+        return cacheVld(tgt)
     }
 }

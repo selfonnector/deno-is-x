@@ -1,116 +1,147 @@
-import { Validation, join } from './core.ts'
-export function isUnknown(_target: unknown): _target is unknown {
+import { Vld, union } from './core.ts'
+export function isUnknown(_tgt: unknown): _tgt is unknown {
     return true
 }
-export function isNever(_target: unknown): _target is never {
+export function isNever(_tgt: unknown): _tgt is never {
     return false
 }
-export function isString(target: unknown): target is string {
-    return typeof target === 'string'
+export function isString(tgt: unknown): tgt is string {
+    return typeof tgt === 'string'
 }
-export function isNumber(target: unknown): target is number {
-    return typeof target === 'number'
+export function isNumber(tgt: unknown): tgt is number {
+    return typeof tgt === 'number'
 }
-export function isInt(target: unknown): target is number {
-    return Number.isInteger(target)
+export function isInt(tgt: unknown): tgt is number {
+    return Number.isInteger(tgt)
 }
-export function isBigInt(target: unknown): target is bigint {
-    return typeof target === 'bigint'
+export function isBigInt(tgt: unknown): tgt is bigint {
+    return typeof tgt === 'bigint'
 }
-export function isBoolean(target: unknown): target is boolean {
-    return typeof target === 'boolean'
+export function isBoolean(tgt: unknown): tgt is boolean {
+    return typeof tgt === 'boolean'
 }
-export function isSymbol(target: unknown): target is symbol {
-    return typeof target === 'symbol'
+export function isSymbol(tgt: unknown): tgt is symbol {
+    return typeof tgt === 'symbol'
 }
-export function isNull(target: unknown): target is null {
-    return target === null
+export function isNull(tgt: unknown): tgt is null {
+    return tgt === null
 }
-export function isUndefined(target: unknown): target is undefined {
-    return typeof target === 'undefined'
+export function isUndefined(tgt: unknown): tgt is undefined {
+    return typeof tgt === 'undefined'
 }
-export function eq<T extends string | number | bigint | boolean | symbol>(base: T) {
-    return (target: unknown): target is T => target === base
+export function isObject(tgt: unknown): tgt is object {
+    return typeof tgt === 'object' && tgt !== null
 }
-export function gt(base: number) {
-    return (target: number): target is number => target > base
+export function isArray(tgt: unknown): tgt is unknown[] {
+    return Array.isArray(tgt)
 }
-export function lt(base: number) {
-    return (target: number): target is number => target < base
+export function proto<T extends object>(proto: T) {
+    return (tgt: object): tgt is T => Object.getPrototypeOf(tgt) === proto
 }
-export function ge(base: number) {
-    return (target: number): target is number => target >= base
+export function eq<T extends string | number | bigint | boolean>(base: T): Vld<unknown, T>
+export function eq<T>(base: T): Vld<unknown, T>
+export function eq<T>(base: T) {
+    return (tgt: unknown): tgt is T => tgt === base
 }
-export function le(base: number) {
-    return (target: number): target is number => target <= base
+type Ord = string | number | bigint | object
+export function gt(base: Ord) {
+    return <T extends Ord>(tgt: T): tgt is T => tgt > base
 }
-export function len<Length extends number>(vld: Validation<number ,Length>) {
-    return <T extends string | unknown[], E extends T extends (infer E)[] ? E : unknown>(target: T | (T extends any[] ? Tuple<E, Length> : T)): target is T extends any[] ? Tuple<E, Length> : T => {
-        return vld((<T>target).length)
+export function lt(base: Ord) {
+    return <T extends Ord>(tgt: T): tgt is T => tgt < base
+}
+export function ge(base: Ord) {
+    return <T extends Ord>(tgt: T): tgt is T => tgt >= base
+}
+export function le(base: Ord) {
+    return <T extends Ord>(tgt: T): tgt is T => tgt <= base
+}
+type Tuple<T, Length extends number, Base extends unknown[] = []> = Base['length'] extends Length ? Length extends Base['length'] ? Base : [...Base, ...T[]] : Tuple<T, Length, [...Base, T]>
+export function len<Length extends number>(vld: Vld<number ,Length>) {
+    return <T extends string | unknown[], E extends T extends (infer E)[] ? E : unknown>(tgt: T | (T extends any[] ? Tuple<E, Length> : T)): tgt is T extends any[] ? Tuple<E, Length> : T => {
+        return vld((<T>tgt).length)
     }
 }
-export function isArray_<E>(elemVld: Validation<unknown, E>): Validation<unknown, E[]>
-export function isArray_<E, Length extends number>(elemVld: Validation<unknown, E>, length: Length): Validation<unknown, Tuple<E, Length>>
-export function isArray_(elemVld: Validation<unknown, unknown>, length?: number) {
-    return (target: unknown) => {
-        if (!isPlaneArray(target)) return false
-        if (isNumber(length) && target.length !== length) return false
-        for (const tgtElem of target) if (!elemVld(tgtElem)) return false
+export function all<Tgt, Ok extends Tgt>(vld: Vld<Tgt, Ok>) {
+    return (tgt: Tgt[]): tgt is Ok[] => {
+        for (const e of tgt) if (!vld(e)) return false
         return true
     }
 }
-export function isTuple_<T extends unknown[]>(...elemVlds: ValidationMap<T>) {
-    return (target: unknown): target is T => {
-        if (!isPlaneArray(target)) return false
-        if (target.length !== elemVlds.length) return false
-        for (let i = 0; i < target.length; i++) if (!elemVlds[i](target[i])) return false
+export function tuple<As extends unknown[]>(baseVld: Vld<unknown[], As>) {
+    return {
+        vld: baseVld,
+        req<B>(vld: Vld<unknown, B>) {
+            return tuple((tgt: unknown[]): tgt is [...As, B] => {
+                if (tgt.length === 0) return false
+                const i = tgt.length - 1
+                return this.vld(tgt.slice(0, i)) && vld(tgt[i])
+            })
+        },
+        opt<B>(vld: Vld<unknown, B>) {
+            return tuple((tgt: unknown[]): tgt is [...As, B?] => {
+                if (this.vld(tgt)) return true
+                const optVld = union(vld).or(isUndefined).vld
+                const i = tgt.length - 1
+                return this.vld(tgt.slice(0, i)) && optVld(tgt[i])
+            })
+        },
+        link<Bs extends unknown[]>(vld: Vld<unknown[], Bs>) {
+            return tuple((tgt: unknown[]): tgt is [...As, ...Bs] => {
+                for (let i = 0; i < tgt.length; i++) {
+                    if (this.vld(tgt.slice(0, i)) && vld(tgt.slice(i, tgt.length))) return true
+                }
+                return false
+            })
+        }
+    }
+}
+
+// TODO
+export function isAssoc_<E>(elemVld: Vld<unknown, E>) {
+    return (tgt: unknown): tgt is Assoc<E> => {
+        if (!isPlaneObject(tgt)) return false
+        for (const key of ownKeys(tgt)) if (!elemVld(tgt[key])) return false
         return true
     }
 }
-export function isAssoc_<E>(elemVld: Validation<unknown, E>) {
-    return (target: unknown): target is Assoc<E> => {
-        if (!isPlaneObject(target)) return false
-        for (const key of ownKeys(target)) if (!elemVld(target[key])) return false
+export function isDict_<E>(elemVld: Vld<unknown, E>) {
+    return (tgt: unknown): tgt is Dict<E> => {
+        if (!isPlaneObject(tgt)) return false
+        if (Object.getOwnPropertySymbols(tgt).length > 0) return false
+        for (const key of ownKeys(tgt)) if (!elemVld(tgt[key])) return false
         return true
     }
 }
-export function isDict_<E>(elemVld: Validation<unknown, E>) {
-    return (target: unknown): target is Dict<E> => {
-        if (!isPlaneObject(target)) return false
-        if (Object.getOwnPropertySymbols(target).length > 0) return false
-        for (const key of ownKeys(target)) if (!elemVld(target[key])) return false
+export function isAlbum_<E>(elemVld: Vld<unknown, E>) {
+    return (tgt: unknown): tgt is Album<E> => {
+        if (!isPlaneObject(tgt)) return false
+        if (Object.getOwnPropertyNames(tgt).length > 0) return false
+        for (const key of ownKeys(tgt)) if (!elemVld(tgt[key])) return false
         return true
     }
 }
-export function isAlbum_<E>(elemVld: Validation<unknown, E>) {
-    return (target: unknown): target is Album<E> => {
-        if (!isPlaneObject(target)) return false
-        if (Object.getOwnPropertyNames(target).length > 0) return false
-        for (const key of ownKeys(target)) if (!elemVld(target[key])) return false
-        return true
-    }
-}
-export function isStruct_<Schema extends Assoc<unknown>>(vldSchema: ValidationMap<Schema>): Validation<unknown, Schema>
-export function isStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object>>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]): Validation<unknown, Optionally<Schema, OptKey>>
-export function isStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object> = never>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]) {
+export function isStruct_<Schema extends Assoc<unknown>>(vldSchema: VldMap<Schema>): Vld<unknown, Schema>
+export function isStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object>>(vldSchema: VldMap<Schema>, optionalKeys?: OptKey[]): Vld<unknown, Optionally<Schema, OptKey>>
+export function isStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object> = never>(vldSchema: VldMap<Schema>, optionalKeys?: OptKey[]) {
     const hasStruct = hasStruct_(vldSchema, optionalKeys)
-    return (target: unknown) => {
-        if (!hasStruct(target)) return false
-        for (const key of ownKeys(target)) if (!hasOwnKey(vldSchema, key)) return false
+    return (tgt: unknown) => {
+        if (!hasStruct(tgt)) return false
+        for (const key of ownKeys(tgt)) if (!hasOwnKey(vldSchema, key)) return false
         return true
     }
 }
-export function hasStruct_<Schema extends Assoc<unknown>>(vldSchema: ValidationMap<Schema>): Validation<unknown, Schema & Assoc<unknown>>
-export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object>>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]): Validation<unknown, Optionally<Schema, OptKey> & Assoc<unknown>>
-export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object> = never>(vldSchema: ValidationMap<Schema>, optionalKeys?: OptKey[]) {
-    const vlds: Assoc<Validation<unknown, unknown>> = { ...vldSchema }
+export function hasStruct_<Schema extends Assoc<unknown>>(vldSchema: VldMap<Schema>): Vld<unknown, Schema & Assoc<unknown>>
+export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object>>(vldSchema: VldMap<Schema>, optionalKeys?: OptKey[]): Vld<unknown, Optionally<Schema, OptKey> & Assoc<unknown>>
+export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object> = never>(vldSchema: VldMap<Schema>, optionalKeys?: OptKey[]) {
+    const vlds: Assoc<Vld<unknown, unknown>> = { ...vldSchema }
     const optKeys = optionalKeys ? optionalKeys as (keyof typeof vlds)[] : []
-    for (const key of optKeys) vlds[key] = join(vlds[key], isUndefined)
-    return (target: unknown) => {
-        if (!isPlaneObject(target)) return false
+    for (const key of optKeys) vlds[key] = union(vlds[key]).or(isUndefined).vld
+    return (tgt: unknown) => {
+        if (!isPlaneObject(tgt)) return false
         for (const key of ownKeys(vlds)) {
-            if (hasOwnKey(target, key)) {
-                if (!vlds[key](target[key])) return false
+            if (hasOwnKey(tgt, key)) {
+                if (!vlds[key](tgt[key])) return false
             } else {
                 if (optKeys.includes(key)) continue
                 return false
@@ -119,8 +150,8 @@ export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude
         return true
     }
 }
-type ValidationMap<Valid> = {
-    [P in keyof Valid]: Validation<unknown, Valid[P]>
+type VldMap<Valid> = {
+    [P in keyof Valid]: Vld<unknown, Valid[P]>
 }
 type Assoc<E> = {
     [key: string | symbol]: E
@@ -133,15 +164,8 @@ type Album<E> = {
 }
 type PropKey<T = any> = keyof T & (string | symbol)
 type Optionally<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
-type Tuple<T, Length extends number, Base extends unknown[] = []> = Base['length'] extends Length ? Length extends Base['length'] ? Base : [...Base, ...T[]] : Tuple<T, Length, [...Base, T]>
-function isObject(target: unknown): target is object {
-    return typeof target === 'object' && target !== null
-}
-function isPlaneObject(target: unknown): target is object {
-    return isObject(target) && Object.getPrototypeOf(target) === Object.prototype
-}
-function isPlaneArray(target: unknown): target is unknown[] {
-    return Array.isArray(target) && Object.getPrototypeOf(target) === Array.prototype
+function isPlaneObject(tgt: unknown): tgt is object {
+    return isObject(tgt) && Object.getPrototypeOf(tgt) === Object.prototype
 }
 function ownKeys<T extends object>(o: T) {
     return Reflect.ownKeys(o) as PropKey<T>[]

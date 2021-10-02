@@ -2,11 +2,11 @@ import {
     assertEquals
 } from 'https://deno.land/std@0.108.0/testing/asserts.ts'
 import {
-    Validation,
-    TargetType,
-    ValidType,
+    Vld,
+    TgtType,
+    OkType,
     extend,
-    join,
+    union,
     ref,
     isUnknown,
     isNever,
@@ -18,14 +18,17 @@ import {
     isSymbol,
     isNull,
     isUndefined,
+    isObject,
+    isArray,
+    proto,
     eq,
     gt,
     lt,
     ge,
     le,
     len,
-    isArray_,
-    isTuple_,
+    all,
+    tuple,
     isAssoc_,
     isDict_,
     isAlbum_,
@@ -38,7 +41,7 @@ function is1_1or__1__(target: 1 | '1'): target is 1 {
     return target === 1
 }
 type LoopNest = { a?: LoopNest }
-function isLoopNest_(): Validation<unknown, LoopNest> {
+function isLoopNest_(): Vld<unknown, LoopNest> {
     return isStruct_({
         a: ref(isLoopNest_)
     }, ['a'])
@@ -115,16 +118,16 @@ function assertEqualsForValidations(target: unknown, expected: typeof vldsExpect
     assertEquals<boolean>(eq(0n)(target), expected.is0n)
     assertEquals<boolean>(eq(false)(target), expected.isFalse)
     assertEquals<boolean>(eq(symbolA)(target), expected.isSymbolA)
-    assertEquals<boolean>(isArray_(isNever)(target), expected.isEmptyArray)
-    assertEquals<boolean>(isArray_(isString)(target), expected.isStringArray)
-    assertEquals<boolean>(isArray_(eq('0'))(target), expected.is__0__Array)
-    assertEquals<boolean>(isArray_(eq('0'), 0)(target), expected.is__0__Array_LEN_0)
-    assertEquals<boolean>(isArray_(eq('0'), 1)(target), expected.is__0__Array_LEN_1)
-    assertEquals<boolean>(isArray_(eq('0'), 2)(target), expected.is__0__Array_LEN_2)
-    assertEquals<boolean>(isTuple_()(target), expected.isEmptyTuple)
-    assertEquals<boolean>(isTuple_(isString)(target), expected.isTuple_0_String)
-    assertEquals<boolean>(isTuple_(isString, isString)(target), expected.isTuple_0_String_1_String)
-    assertEquals<boolean>(isTuple_(eq('0'), eq('0'))(target), expected.isTuple_0___0___1___0__)
+    assertEquals<boolean>(extend(isArray).and(all(isNever)).vld(target), expected.isEmptyArray)
+    assertEquals<boolean>(extend(isArray).and(all(isString)).vld(target), expected.isStringArray)
+    assertEquals<boolean>(extend(isArray).and(all(eq('0'))).vld(target), expected.is__0__Array)
+    assertEquals<boolean>(extend(isArray).and(all(eq('0'))).and(len(eq(0))).vld(target), expected.is__0__Array_LEN_0)
+    assertEquals<boolean>(extend(isArray).and(all(eq('0'))).and(len(eq(1))).vld(target), expected.is__0__Array_LEN_1)
+    assertEquals<boolean>(extend(isArray).and(all(eq('0'))).and(len(eq(2))).vld(target), expected.is__0__Array_LEN_2)
+    // assertEquals<boolean>(isTuple_()(target), expected.isEmptyTuple)
+    // assertEquals<boolean>(isTuple_(isString)(target), expected.isTuple_0_String)
+    // assertEquals<boolean>(isTuple_(isString, isString)(target), expected.isTuple_0_String_1_String)
+    // assertEquals<boolean>(isTuple_(eq('0'), eq('0'))(target), expected.isTuple_0___0___1___0__)
     assertEquals<boolean>(isAssoc_(isNever)(target), expected.isEmptyAssoc)
     assertEquals<boolean>(isAssoc_(isString)(target), expected.isStringAssoc)
     assertEquals<boolean>(isAssoc_(eq('0'))(target), expected.is__0__Assoc)
@@ -148,13 +151,11 @@ function assertEqualsForValidations(target: unknown, expected: typeof vldsExpect
     assertEquals<boolean>(hasStruct_({ a: eq('0'), b: eq('0') }, ['a', 'b'])(target), expected.hasStruct___a_____0_____b_____0___OPT___a_____b__)
     assertEquals<boolean>(hasStruct_({ a: eq('0'), b: eq('0') }, ['b'])(target), expected.hasStruct___a_____0_____b_____0___OPT___b__)
     assertEquals<boolean>(hasStruct_({ [symbolA]: eq('0'), [symbolB]: eq('0') }, [symbolB])(target), expected.hasStruct_SymbolA___0___SymbolB___0___OPT_SymbolB)
-    assertEquals<boolean>(join(isNever, isNever)(target), expected.isEmptyUnion)
-    assertEquals<boolean>(join(eq('0')).or(eq(0n)).or(eq(symbolA)).or(isUndefined).or(isStruct_({})).x(target), expected.isUnion_ptnA)
-    assertEquals<boolean>(join(eq(0)).or(eq(false)).or(isNull).or(isArray_(isNever)).x(target), expected.isUnion_ptnB)
-    assertEquals<boolean>(extend(join(eq(1), eq('1'))).and(is1_1or__1__).x(target), expected.is1)
-    assertEquals<boolean>(extend(join(eq(1), eq('1')), is1_1or__1__)(target), expected.is1)
-    assertEquals<boolean>(join(eq('0')).or(eq(0n)).or(eq(symbolA)).or(isUndefined).or(isStruct_({})).x(target), expected.isUnion_ptnA)
-    assertEquals<boolean>(join(join(join(join(eq('0'), eq(0n)), eq(symbolA)), isUndefined), isStruct_({}))(target), expected.isUnion_ptnA)
+    assertEquals<boolean>(union(isNever).or(isNever).vld(target), expected.isEmptyUnion)
+    assertEquals<boolean>(union(eq('0')).or(eq(0n)).or(eq(symbolA)).or(isUndefined).or(isStruct_({})).vld(target), expected.isUnion_ptnA)
+    assertEquals<boolean>(union(eq(0)).or(eq(false)).or(isNull).or(extend(isArray).and(all(isNever)).vld).vld(target), expected.isUnion_ptnB)
+    assertEquals<boolean>(extend(union(eq(1)).or(eq('1')).vld).and(is1_1or__1__).vld(target), expected.is1)
+    assertEquals<boolean>(union(eq('0')).or(eq(0n)).or(eq(symbolA)).or(isUndefined).or(isStruct_({})).vld(target), expected.isUnion_ptnA)
     assertEquals<boolean>(ref(eq, '0')(target), expected.ref_is__0__)
     assertEquals<boolean>(isLoopNest(target), expected.isLoopNest)
 }
@@ -205,22 +206,22 @@ if (isNull(target)) {
 if (isUndefined(target)) {
     target // : undefined
 }
-if (isArray_(eq('0'))(target)) {
+if (extend(isArray).and(all(eq('0'))).vld(target)) {
     target // : "0"[]
     target.pop
 }
-if (isArray_(eq('0'), 3)(target)) {
+if (extend(isArray).and(all(eq('0'))).and(len(eq(3))).vld(target)) {
     target // : ["0", "0", "0"]
     target.pop
 }
-if (isArray_(eq('0'), 3 as number)(target)) {
+if (extend(isArray).and(all(eq('0'))).and(len(eq(3 as number))).vld(target)) {
     target // : "0"[]
     target.pop
 }
-if (isTuple_(eq('0'), eq(0))(target)) {
-    target // : ["0", 0]
-    target.pop
-}
+// if (isTuple_(eq('0'), eq(0))(target)) {
+//     target // : ["0", 0]
+//     target.pop
+// }
 if (isAssoc_(eq('0'))(target)) {
     target // : Assoc<"0"> = { [key: string | symbol]: "0" }
     target.a // : "0" (It may be '"0" | undefined' to be exact, but ...)
@@ -263,43 +264,31 @@ if (hasStruct_({ a: eq('0'), b: eq(0) }, ['b'])(target)) {
     target.c // : unknown
     target.valueOf // : Object.valueOf(): Object (It may be 'unknown' to be exact, but ...)
 }
-if (join(eq('0'), eq(0))(target)) {
+if (union(eq('0')).or(eq(0)).vld(target)) {
     target // : 0 | "0"
 }
 let target2 = 1 as 1 | '1'
-if (extend(isString, eq('0'))(target)) {
+if (extend(isString).and(eq('0')).vld(target)) {
     target // : "0"
 }
-if (extend(isString).and(eq('0')).x(target)) {
-    target // : "0"
-}
-if (extend(join(eq(1), eq('1')), is1_1or__1__)(target)) {
+if (extend(union(eq(1)).or(eq('1')).vld).and(is1_1or__1__).vld(target)) {
     target // : 1
 }
-if (extend(join(eq(1), eq('1'))).and(is1_1or__1__).x(target)) {
-    target // : 1
-}
-if (join(isString, eq('0'))(target)) {
+if (union(isString).or(eq('0')).vld(target)) {
     target // : string
 }
-if (join(isString).or(eq('0')).x(target)) {
-    target // : string
-}
-if (join(join(eq(1), eq('1')), is1_1or__1__)(target2)) {
-    target2 // : 1 | "1"
-}
-if (join(is1_1or__1__).or(join(eq(1), eq('1'))).x(target2)) {
+if (union(is1_1or__1__).or(union(eq(1)).or(eq('1')).vld).vld(target2)) {
     target2 // : 1 | "1"
 }
 if (ref(eq, '0')(target)) {
-    target // : string (be careful!)
+    target // : unknown (be careful!)
 }
 if (ref(() => is1_1or__1__)(target2)) {
     target2 // : 1
 }
-type _1or__1__ = TargetType<typeof is1_1or__1__> // : 1 | "1"
-type _String = ValidType<typeof isString> // : string
-type _LoopNest = ValidType<typeof isLoopNest> // : { a?: LoopNest | undefined; }
+type _1or__1__ = TgtType<typeof is1_1or__1__> // : 1 | "1"
+type _String = OkType<typeof isString> // : string
+type _LoopNest = OkType<typeof isLoopNest> // : { a?: LoopNest | undefined; }
 Deno.test({
     name: 'Validation',
     fn() {
@@ -334,9 +323,9 @@ Deno.test({
         assertEquals_Vlds({ a: { a: null } }, ['hasEmptyStruct'])
         assertEquals_Vlds({ a: { b: {} } }, ['hasEmptyStruct'])
         assertEquals_Vlds({ a: { a: {}, b: {} } }, ['hasEmptyStruct'])
-        assertEquals_Vlds(new UnextendedClass, [])
-        assertEquals_Vlds(new SubObject, [])
-        assertEquals_Vlds(new SubArray, [])
+        // assertEquals_Vlds(new UnextendedClass, [])
+        // assertEquals_Vlds(new SubObject, [])
+        // assertEquals_Vlds(new SubArray, [])
     }
 })
 Deno.test({
