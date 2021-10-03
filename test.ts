@@ -118,12 +118,12 @@ function assertEqualsForValidations(target: unknown, expected: typeof vldsExpect
     assertEquals<boolean>(eq(0n)(target), expected.is0n)
     assertEquals<boolean>(eq(false)(target), expected.isFalse)
     assertEquals<boolean>(eq(symbolA)(target), expected.isSymbolA)
-    assertEquals<boolean>(extend(isArray).and(all(isNever)).vld(target), expected.isEmptyArray)
-    assertEquals<boolean>(extend(isArray).and(all(isString)).vld(target), expected.isStringArray)
-    assertEquals<boolean>(extend(isArray).and(all(eq('0'))).vld(target), expected.is__0__Array)
-    assertEquals<boolean>(extend(isArray).and(all(eq('0'))).and(len(eq(0))).vld(target), expected.is__0__Array_LEN_0)
-    assertEquals<boolean>(extend(isArray).and(all(eq('0'))).and(len(eq(1))).vld(target), expected.is__0__Array_LEN_1)
-    assertEquals<boolean>(extend(isArray).and(all(eq('0'))).and(len(eq(2))).vld(target), expected.is__0__Array_LEN_2)
+    assertEquals<boolean>(extend(isArray, all(isNever))(target), expected.isEmptyArray)
+    assertEquals<boolean>(extend(isArray, all(isString))(target), expected.isStringArray)
+    assertEquals<boolean>(extend(isArray, all(eq('0')))(target), expected.is__0__Array)
+    assertEquals<boolean>(extend(isArray, extend(all(eq('0')), len(eq(0))))(target), expected.is__0__Array_LEN_0)
+    assertEquals<boolean>(extend(isArray, extend(all(eq('0')), len(eq(1))))(target), expected.is__0__Array_LEN_1)
+    assertEquals<boolean>(extend(isArray, extend(all(eq('0')), len(eq(2))))(target), expected.is__0__Array_LEN_2)
     // assertEquals<boolean>(isTuple_()(target), expected.isEmptyTuple)
     // assertEquals<boolean>(isTuple_(isString)(target), expected.isTuple_0_String)
     // assertEquals<boolean>(isTuple_(isString, isString)(target), expected.isTuple_0_String_1_String)
@@ -151,11 +151,11 @@ function assertEqualsForValidations(target: unknown, expected: typeof vldsExpect
     assertEquals<boolean>(hasStruct_({ a: eq('0'), b: eq('0') }, ['a', 'b'])(target), expected.hasStruct___a_____0_____b_____0___OPT___a_____b__)
     assertEquals<boolean>(hasStruct_({ a: eq('0'), b: eq('0') }, ['b'])(target), expected.hasStruct___a_____0_____b_____0___OPT___b__)
     assertEquals<boolean>(hasStruct_({ [symbolA]: eq('0'), [symbolB]: eq('0') }, [symbolB])(target), expected.hasStruct_SymbolA___0___SymbolB___0___OPT_SymbolB)
-    assertEquals<boolean>(union(isNever).or(isNever).vld(target), expected.isEmptyUnion)
-    assertEquals<boolean>(union(eq('0')).or(eq(0n)).or(eq(symbolA)).or(isUndefined).or(isStruct_({})).vld(target), expected.isUnion_ptnA)
-    assertEquals<boolean>(union(eq(0)).or(eq(false)).or(isNull).or(extend(isArray).and(all(isNever)).vld).vld(target), expected.isUnion_ptnB)
-    assertEquals<boolean>(extend(union(eq(1)).or(eq('1')).vld).and(is1_1or__1__).vld(target), expected.is1)
-    assertEquals<boolean>(union(eq('0')).or(eq(0n)).or(eq(symbolA)).or(isUndefined).or(isStruct_({})).vld(target), expected.isUnion_ptnA)
+    assertEquals<boolean>(union(isNever, isNever)(target), expected.isEmptyUnion)
+    assertEquals<boolean>(union(eq('0'), eq(0n), eq(symbolA), isUndefined, isStruct_({}))(target), expected.isUnion_ptnA)
+    assertEquals<boolean>(union(eq(0), eq(false), isNull, extend(isArray, all(isNever)))(target), expected.isUnion_ptnB)
+    assertEquals<boolean>(extend(union(eq(1), eq('1')), is1_1or__1__)(target), expected.is1)
+    assertEquals<boolean>(union(eq('0'), eq(0n), eq(symbolA), isUndefined, isStruct_({}))(target), expected.isUnion_ptnA)
     assertEquals<boolean>(ref(eq, '0')(target), expected.ref_is__0__)
     assertEquals<boolean>(isLoopNest(target), expected.isLoopNest)
 }
@@ -206,15 +206,15 @@ if (isNull(target)) {
 if (isUndefined(target)) {
     target // : undefined
 }
-if (extend(isArray).and(all(eq('0'))).vld(target)) {
+if (extend(isArray, all(eq('0')))(target)) {
     target // : "0"[]
     target.pop
 }
-if (extend(isArray).and(all(eq('0'))).and(len(eq(3))).vld(target)) {
+if (extend(isArray, extend(all(eq('0')), len(eq(3))))(target)) {
     target // : ["0", "0", "0"]
     target.pop
 }
-if (extend(isArray).and(all(eq('0'))).and(len(eq(3 as number))).vld(target)) {
+if (extend(isArray, extend(all(eq('0')), len(eq(3 as number))))(target)) {
     target // : "0"[]
     target.pop
 }
@@ -264,20 +264,20 @@ if (hasStruct_({ a: eq('0'), b: eq(0) }, ['b'])(target)) {
     target.c // : unknown
     target.valueOf // : Object.valueOf(): Object (It may be 'unknown' to be exact, but ...)
 }
-if (union(eq('0')).or(eq(0)).vld(target)) {
+if (union(eq('0'),eq(0))(target)) {
     target // : 0 | "0"
 }
 let target2 = 1 as 1 | '1'
-if (extend(isString).and(eq('0')).vld(target)) {
+if (extend(isString, eq('0'))(target)) {
     target // : "0"
 }
-if (extend(union(eq(1)).or(eq('1')).vld).and(is1_1or__1__).vld(target)) {
+if (extend(union(eq(1), eq('1')), is1_1or__1__)(target)) {
     target // : 1
 }
-if (union(isString).or(eq('0')).vld(target)) {
+if (union(isString, eq('0'))(target)) {
     target // : string
 }
-if (union(is1_1or__1__).or(union(eq(1)).or(eq('1')).vld).vld(target2)) {
+if (union(is1_1or__1__, union(eq(1), eq('1')))(target2)) {
     target2 // : 1 | "1"
 }
 if (ref(eq, '0')(target)) {

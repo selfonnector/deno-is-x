@@ -38,10 +38,10 @@ export function isArray(tgt: unknown): tgt is unknown[] {
 export function proto<T extends object>(proto: T) {
     return (tgt: object): tgt is T => Object.getPrototypeOf(tgt) === proto
 }
-export function eq<T extends string | number | bigint | boolean>(base: T): Vld<unknown, T>
+export function eq<T extends string | number | bigint | boolean>(base: T): Vld<unknown, T> // For literal type inference
 export function eq<T>(base: T): Vld<unknown, T>
 export function eq<T>(base: T) {
-    return (tgt: unknown): tgt is T => tgt === base
+    return (tgt: unknown) => tgt === base
 }
 type Ord = string | number | bigint | object
 export function gt(base: Ord) {
@@ -81,7 +81,7 @@ export function tuple<As extends unknown[]>(baseVld: Vld<unknown[], As>) {
         opt<B>(vld: Vld<unknown, B>) {
             return tuple((tgt: unknown[]): tgt is [...As, B?] => {
                 if (this.vld(tgt)) return true
-                const optVld = union(vld).or(isUndefined).vld
+                const optVld = union(vld, isUndefined)
                 const i = tgt.length - 1
                 return this.vld(tgt.slice(0, i)) && optVld(tgt[i])
             })
@@ -136,7 +136,7 @@ export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude
 export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object> = never>(vldSchema: VldMap<Schema>, optionalKeys?: OptKey[]) {
     const vlds: Assoc<Vld<unknown, unknown>> = { ...vldSchema }
     const optKeys = optionalKeys ? optionalKeys as (keyof typeof vlds)[] : []
-    for (const key of optKeys) vlds[key] = union(vlds[key]).or(isUndefined).vld
+    for (const key of optKeys) vlds[key] = union(vlds[key], isUndefined)
     return (tgt: unknown) => {
         if (!isPlaneObject(tgt)) return false
         for (const key of ownKeys(vlds)) {
