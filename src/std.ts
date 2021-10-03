@@ -1,3 +1,4 @@
+import type { VldMap } from './_util.ts'
 import { Vld, union } from './core.ts'
 export function isUnknown(_tgt: unknown): _tgt is unknown {
     return true
@@ -40,7 +41,7 @@ export function proto<T extends object>(proto: T) {
 }
 export function eq<T extends string | number | bigint | boolean>(base: T): Vld<unknown, T> // For literal type inference
 export function eq<T>(base: T): Vld<unknown, T>
-export function eq<T>(base: T) {
+export function eq(base: unknown) {
     return (tgt: unknown) => tgt === base
 }
 type Ord = string | number | bigint | object
@@ -68,18 +69,30 @@ export function all<Tgt, Ok extends Tgt>(vld: Vld<Tgt, Ok>) {
         return true
     }
 }
-export function tuple<As extends unknown[]>(baseVld: Vld<unknown[], As>) {
+export function tuple(): Vld<unknown[], []>
+export function tuple<Tgt, Ok extends Tgt, Oks extends Tgt[]>(headVld: Vld<Tgt, Ok>, ...tailVlds: VldMap<Tgt, Oks>): Vld<Tgt[], [Ok, ...Oks]>
+export function tuple<Tgt, Ok extends Tgt, Oks extends Tgt[]>(headVld?: Vld<Tgt, Ok>, ...tailVlds: VldMap<Tgt, Oks>) {
+    const vlds = headVld ? [headVld, ...tailVlds] : []
+    return (tgt: Tgt[]) => {
+        if (tgt.length !== vlds.length) return false
+        for (let i = 0; i < tgt.length; i++) if (!vlds[i](tgt[i])) return false
+        return true
+    }
+}
+
+// TODO
+export function _tuple<As extends unknown[]>(baseVld: Vld<unknown[], As>) {
     return {
         vld: baseVld,
         req<B>(vld: Vld<unknown, B>) {
-            return tuple((tgt: unknown[]): tgt is [...As, B] => {
+            return _tuple((tgt: unknown[]): tgt is [...As, B] => {
                 if (tgt.length === 0) return false
                 const i = tgt.length - 1
                 return this.vld(tgt.slice(0, i)) && vld(tgt[i])
             })
         },
         opt<B>(vld: Vld<unknown, B>) {
-            return tuple((tgt: unknown[]): tgt is [...As, B?] => {
+            return _tuple((tgt: unknown[]): tgt is [...As, B?] => {
                 if (this.vld(tgt)) return true
                 const optVld = union(vld, isUndefined)
                 const i = tgt.length - 1
@@ -87,7 +100,7 @@ export function tuple<As extends unknown[]>(baseVld: Vld<unknown[], As>) {
             })
         },
         link<Bs extends unknown[]>(vld: Vld<unknown[], Bs>) {
-            return tuple((tgt: unknown[]): tgt is [...As, ...Bs] => {
+            return _tuple((tgt: unknown[]): tgt is [...As, ...Bs] => {
                 for (let i = 0; i < tgt.length; i++) {
                     if (this.vld(tgt.slice(0, i)) && vld(tgt.slice(i, tgt.length))) return true
                 }
@@ -96,8 +109,6 @@ export function tuple<As extends unknown[]>(baseVld: Vld<unknown[], As>) {
         }
     }
 }
-
-// TODO
 export function isAssoc_<E>(elemVld: Vld<unknown, E>) {
     return (tgt: unknown): tgt is Assoc<E> => {
         if (!isPlaneObject(tgt)) return false
@@ -121,9 +132,9 @@ export function isAlbum_<E>(elemVld: Vld<unknown, E>) {
         return true
     }
 }
-export function isStruct_<Schema extends Assoc<unknown>>(vldSchema: VldMap<Schema>): Vld<unknown, Schema>
-export function isStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object>>(vldSchema: VldMap<Schema>, optionalKeys?: OptKey[]): Vld<unknown, Optionally<Schema, OptKey>>
-export function isStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object> = never>(vldSchema: VldMap<Schema>, optionalKeys?: OptKey[]) {
+export function isStruct_<Schema extends Assoc<unknown>>(vldSchema: _VldMap<Schema>): Vld<unknown, Schema>
+export function isStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object>>(vldSchema: _VldMap<Schema>, optionalKeys?: OptKey[]): Vld<unknown, Optionally<Schema, OptKey>>
+export function isStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object> = never>(vldSchema: _VldMap<Schema>, optionalKeys?: OptKey[]) {
     const hasStruct = hasStruct_(vldSchema, optionalKeys)
     return (tgt: unknown) => {
         if (!hasStruct(tgt)) return false
@@ -131,9 +142,9 @@ export function isStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<
         return true
     }
 }
-export function hasStruct_<Schema extends Assoc<unknown>>(vldSchema: VldMap<Schema>): Vld<unknown, Schema & Assoc<unknown>>
-export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object>>(vldSchema: VldMap<Schema>, optionalKeys?: OptKey[]): Vld<unknown, Optionally<Schema, OptKey> & Assoc<unknown>>
-export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object> = never>(vldSchema: VldMap<Schema>, optionalKeys?: OptKey[]) {
+export function hasStruct_<Schema extends Assoc<unknown>>(vldSchema: _VldMap<Schema>): Vld<unknown, Schema & Assoc<unknown>>
+export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object>>(vldSchema: _VldMap<Schema>, optionalKeys?: OptKey[]): Vld<unknown, Optionally<Schema, OptKey> & Assoc<unknown>>
+export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude<keyof Schema, keyof Object> = never>(vldSchema: _VldMap<Schema>, optionalKeys?: OptKey[]) {
     const vlds: Assoc<Vld<unknown, unknown>> = { ...vldSchema }
     const optKeys = optionalKeys ? optionalKeys as (keyof typeof vlds)[] : []
     for (const key of optKeys) vlds[key] = union(vlds[key], isUndefined)
@@ -150,7 +161,7 @@ export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude
         return true
     }
 }
-type VldMap<Valid> = {
+type _VldMap<Valid> = {
     [P in keyof Valid]: Vld<unknown, Valid[P]>
 }
 type Assoc<E> = {
