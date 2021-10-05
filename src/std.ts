@@ -1,4 +1,4 @@
-import type { VldMap, Ord, Tuple, Assoc, Opt } from './_util.ts'
+import type { OkTypeMap, Ord, Tuple, Assoc, Opt } from './_util.ts'
 import { Vld, union } from './core.ts'
 export function isUnknown(_tgt: unknown): _tgt is unknown {
     return true
@@ -68,8 +68,8 @@ export function all<Tgt, Ok extends Tgt>(vld: Vld<Tgt, Ok>) {
     }
 }
 export function tuple(): Vld<unknown[], []>
-export function tuple<Tgt, Ok extends Tgt, Oks extends Tgt[]>(headVld: Vld<Tgt, Ok>, ...tailVlds: VldMap<Tgt, Oks>): Vld<Tgt[], [Ok, ...Oks]>
-export function tuple<Tgt, Ok extends Tgt, Oks extends Tgt[]>(headVld?: Vld<Tgt, Ok>, ...tailVlds: VldMap<Tgt, Oks>) {
+export function tuple<Tgt, Ok extends Tgt, Vlds extends Vld<Tgt, any>[]>(headVld: Vld<Tgt, Ok>, ...tailVlds: Vlds): Vld<Tgt[], [Ok, ...OkTypeMap<Vlds, Tgt>]>
+export function tuple<Tgt, Ok extends Tgt, Vlds extends Vld<Tgt, any>[]>(headVld?: Vld<Tgt, Ok>, ...tailVlds: Vlds) {
     const vlds = headVld ? [headVld, ...tailVlds] : []
     return (tgt: Tgt[]) => {
         if (tgt.length !== vlds.length) return false

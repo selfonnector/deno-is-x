@@ -1,12 +1,12 @@
-import type { VldMap } from './_util.ts'
+import type { OkTypeMap } from './_util.ts'
 export type Vld<Tgt, Ok extends Tgt> = (tgt: Tgt) => tgt is Ok
-export type TgtType<V extends Vld<any, any>> = V extends Vld<infer Tgt, any> ? Tgt : never
-export type OkType<V extends Vld<any, any>> = V extends Vld<any, infer Ok> ? Ok : never
+export type TgtType<V> = V extends Vld<infer Tgt, any> ? Tgt : never
+export type OkType<V, Tgt = any> = V extends Vld<any, infer Ok> ? Ok extends Tgt ? Ok : never : never
 export function extend<A, B extends A, C extends B>(baseVld: Vld<A, B>, vld: Vld<B, C>) {
     return (tgt: A): tgt is C => baseVld(tgt) && vld(tgt)
 }
-export function union<Tgt, Ok extends Tgt, Oks extends Tgt[]>(baseVld: Vld<Tgt, Ok>, ...vlds: VldMap<Tgt, Oks>) {
-    return (tgt: Tgt): tgt is Ok | Oks[number] => {
+export function union<Tgt, Ok extends Tgt, Vlds extends Vld<Tgt, any>[]>(baseVld: Vld<Tgt, Ok>, ...vlds: Vlds) {
+    return (tgt: Tgt): tgt is Ok | OkTypeMap<Vlds, Tgt>[number] => {
         if (baseVld(tgt)) return true
         for (const vld of vlds) if (vld(tgt)) return true
         return false
