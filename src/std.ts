@@ -1,4 +1,4 @@
-import type { VldMap } from './_util.ts'
+import type { VldMap, Ord, Tuple, Assoc, Opt } from './_util.ts'
 import { Vld, union } from './core.ts'
 export function isUnknown(_tgt: unknown): _tgt is unknown {
     return true
@@ -44,7 +44,6 @@ export function eq<T>(base: T): Vld<unknown, T>
 export function eq(base: unknown) {
     return (tgt: unknown) => tgt === base
 }
-type Ord = string | number | bigint | object
 export function gt(base: Ord) {
     return <T extends Ord>(tgt: T): tgt is T => tgt > base
 }
@@ -57,7 +56,6 @@ export function ge(base: Ord) {
 export function le(base: Ord) {
     return <T extends Ord>(tgt: T): tgt is T => tgt <= base
 }
-type Tuple<T, Length extends number, Base extends unknown[] = []> = Base['length'] extends Length ? Length extends Base['length'] ? Base : [...Base, ...T[]] : Tuple<T, Length, [...Base, T]>
 export function len<Length extends number>(vld: Vld<number ,Length>) {
     return <T extends string | unknown[], E extends T extends (infer E)[] ? E : unknown>(tgt: T | (T extends any[] ? Tuple<E, Length> : T)): tgt is T extends any[] ? Tuple<E, Length> : T => {
         return vld((<T>tgt).length)
@@ -163,9 +161,6 @@ export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude
 }
 type _VldMap<Valid> = {
     [P in keyof Valid]: Vld<unknown, Valid[P]>
-}
-type Assoc<E> = {
-    [key: string | symbol]: E
 }
 type Dict<E> = {
     [key: string]: E
