@@ -67,11 +67,10 @@ export function all<Tgt, Ok extends Tgt>(vld: Vld<Tgt, Ok>) {
         return true
     }
 }
-export function tuple(): Vld<unknown[], []>
 export function tuple<Tgt, Ok extends Tgt, Vlds extends Vld<Tgt, any>[]>(headVld: Vld<Tgt, Ok>, ...tailVlds: Vlds): Vld<Tgt[], [Ok, ...OkTypeMap<Vlds, Tgt>]>
-export function tuple<Tgt, Ok extends Tgt, Vlds extends Vld<Tgt, any>[]>(headVld?: Vld<Tgt, Ok>, ...tailVlds: Vlds) {
-    const vlds = headVld ? [headVld, ...tailVlds] : []
-    return (tgt: Tgt[]) => {
+export function tuple<Vlds extends Vld<unknown, any>[]>(...vlds: Vlds): Vld<unknown[], OkTypeMap<Vlds>>
+export function tuple(...vlds: Vld<unknown, any>[]) {
+    return (tgt: unknown[]) => {
         if (tgt.length !== vlds.length) return false
         for (let i = 0; i < tgt.length; i++) if (!vlds[i](tgt[i])) return false
         return true

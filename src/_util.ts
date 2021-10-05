@@ -2,7 +2,7 @@ import type { Vld, OkType } from './core.ts'
 export type VldMap<Tgt, Oks> = {
     [P in keyof Oks]: Oks[P] extends Tgt ? Vld<Tgt, Oks[P]> : never
 }
-export type OkTypeMap<Vlds, Tgt> = {
+export type OkTypeMap<Vlds, Tgt = any> = {
     [P in keyof Vlds]: OkType<Vlds[P], Tgt>
 }
 export type Ord = string | number | bigint | object

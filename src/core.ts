@@ -5,9 +5,10 @@ export type OkType<V, Tgt = any> = V extends Vld<any, infer Ok> ? Ok extends Tgt
 export function extend<A, B extends A, C extends B>(baseVld: Vld<A, B>, vld: Vld<B, C>) {
     return (tgt: A): tgt is C => baseVld(tgt) && vld(tgt)
 }
-export function union<Tgt, Ok extends Tgt, Vlds extends Vld<Tgt, any>[]>(baseVld: Vld<Tgt, Ok>, ...vlds: Vlds) {
-    return (tgt: Tgt): tgt is Ok | OkTypeMap<Vlds, Tgt>[number] => {
-        if (baseVld(tgt)) return true
+export function union<Tgt, Ok extends Tgt, Vlds extends Vld<Tgt, any>[]>(baseVld: Vld<Tgt, Ok>, ...vlds: Vlds): Vld<Tgt, Ok | OkTypeMap<Vlds, Tgt>[number]>
+export function union<Vlds extends Vld<unknown, any>[]>(...vlds: Vlds): Vld<unknown, OkTypeMap<Vlds>[number]>
+export function union(...vlds: Vld<unknown, any>[]) {
+    return (tgt: unknown) => {
         for (const vld of vlds) if (vld(tgt)) return true
         return false
     }
