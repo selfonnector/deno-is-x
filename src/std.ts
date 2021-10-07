@@ -1,4 +1,4 @@
-import { VldMap, OkTypeMap, Ord, Tuple, Assoc, Opt, protoChain } from './_util.ts'
+import { VldMap, OkTypeMap, Ord, Tuple, Assoc, Dict, Album, Opt, protoChain, ownKeys, ownStringKeys, ownSymbolKeys, hasOwnKey } from './_util.ts'
 import { Vld, union } from './core.ts'
 export function isUnknown(_tgt: unknown): _tgt is unknown {
     return true
@@ -76,14 +76,14 @@ export function tuple(...vlds: Vld<unknown, any>[]) {
         return true
     }
 }
-export function interf<OkSchema extends Assoc<unknown>>(vldSchema: VldMap<unknown, OkSchema>): Vld<object, OkSchema>
-export function interf<OkSchema extends Assoc<unknown>, OptKey extends keyof OkSchema = never>(vldSchema: VldMap<unknown, OkSchema>, optionalKeys?: OptKey[]): Vld<object, Opt<OkSchema, OptKey>>
+export function interf<OkSchema extends Assoc<unknown>>(vldSchema: VldMap<unknown, OkSchema>): Vld<object, OkSchema & Assoc<unknown>>
+export function interf<OkSchema extends Assoc<unknown>, OptKey extends keyof OkSchema = never>(vldSchema: VldMap<unknown, OkSchema>, optionalKeys?: OptKey[]): Vld<object, Opt<OkSchema, OptKey> & Assoc<unknown>>
 export function interf(vldSchema: Assoc<Vld<unknown, any>>, optionalKeys?: (string | symbol)[]) {
     const optKeys = optionalKeys ? optionalKeys : []
     const vlds = { ...vldSchema }
     for (const key of optKeys) vlds[key] = union(vlds[key], isUndefined)
     return (tgt: object) => {
-        for (const key of Reflect.ownKeys(vlds)) {
+        for (const key of ownKeys(vlds)) {
             if (key in tgt) {
                 if (!vlds[key](tgt[key as keyof object])) return false
             } else {
@@ -101,7 +101,33 @@ export function struct(vldSchema: Assoc<Vld<unknown, any>>, optionalKeys?: (stri
     return (tgt: object) => {
         if (!vld(tgt)) return false
         return protoChain((tgt: object) => {
-            for (const key of Reflect.ownKeys(tgt)) if (!Object.hasOwnProperty.call(vldSchema, key)) return false
+            for (const key of ownKeys(tgt)) if (!hasOwnKey(vldSchema, key)) return false
+            return true
+        }, tgt)
+    }
+}
+export function assoc<Ok>(vld: Vld<unknown, Ok>) {
+    return (tgt: object): tgt is Assoc<Ok> => {
+        return protoChain((tgt: object) => {
+            for (const key of ownKeys(tgt)) if (!vld(tgt[key])) return false
+            return true
+        }, tgt)
+    }
+}
+export function dict<Ok>(vld: Vld<unknown, Ok>) {
+    return (tgt: object): tgt is Dict<Ok> => {
+        return protoChain((tgt: object) => {
+            if (ownSymbolKeys(tgt).length > 0) return false
+            for (const key of ownStringKeys(tgt)) if (!vld(tgt[key])) return false
+            return true
+        }, tgt)
+    }
+}
+export function album<Ok>(vld: Vld<unknown, Ok>) {
+    return (tgt: object): tgt is Album<Ok> => {
+        return protoChain((tgt: object) => {
+            if (ownStringKeys(tgt).length > 0) return false
+            for (const key of ownSymbolKeys(tgt)) if (!vld(tgt[key])) return false
             return true
         }, tgt)
     }
@@ -191,20 +217,7 @@ export function hasStruct_<Schema extends Assoc<unknown>, OptKey extends Exclude
 type _VldMap<Valid> = {
     [P in keyof Valid]: Vld<unknown, Valid[P]>
 }
-type Dict<E> = {
-    [key: string]: E
-}
-type Album<E> = {
-    [key: symbol]: E
-}
-type PropKey<T = any> = keyof T & (string | symbol)
 type Optionally<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 function isPlaneObject(tgt: unknown): tgt is object {
     return isObject(tgt) && Object.getPrototypeOf(tgt) === Object.prototype
-}
-function ownKeys<T extends object>(o: T) {
-    return Reflect.ownKeys(o) as PropKey<T>[]
-}
-function hasOwnKey<T extends object>(o: T, key: PropKey): key is PropKey<T> {
-    return Object.hasOwnProperty.call(o, key)
 }
