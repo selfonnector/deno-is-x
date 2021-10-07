@@ -1,4 +1,4 @@
-import type { OkTypeMap, Ord, Tuple, Assoc, Opt } from './_util.ts'
+import { VldMap, OkTypeMap, Ord, Tuple, Assoc, Opt, protoChain } from './_util.ts'
 import { Vld, union } from './core.ts'
 export function isUnknown(_tgt: unknown): _tgt is unknown {
     return true
@@ -36,8 +36,8 @@ export function isObject(tgt: unknown): tgt is object {
 export function isArray(tgt: unknown): tgt is unknown[] {
     return Array.isArray(tgt)
 }
-export function proto<T extends object>(proto: T) {
-    return (tgt: object): tgt is T => Object.getPrototypeOf(tgt) === proto
+export function proto<T extends object>(vld: Vld<object | null, T>) {
+    return (tgt: object): tgt is T => vld(Object.getPrototypeOf(tgt))
 }
 export function eq<T extends string | number | bigint | boolean>(base: T): Vld<unknown, T> // For literal type inference
 export function eq<T>(base: T): Vld<unknown, T>
@@ -74,6 +74,36 @@ export function tuple(...vlds: Vld<unknown, any>[]) {
         if (tgt.length !== vlds.length) return false
         for (let i = 0; i < tgt.length; i++) if (!vlds[i](tgt[i])) return false
         return true
+    }
+}
+export function interf<OkSchema extends Assoc<unknown>>(vldSchema: VldMap<unknown, OkSchema>): Vld<object, OkSchema>
+export function interf<OkSchema extends Assoc<unknown>, OptKey extends keyof OkSchema = never>(vldSchema: VldMap<unknown, OkSchema>, optionalKeys?: OptKey[]): Vld<object, Opt<OkSchema, OptKey>>
+export function interf(vldSchema: Assoc<Vld<unknown, any>>, optionalKeys?: (string | symbol)[]) {
+    const optKeys = optionalKeys ? optionalKeys : []
+    const vlds = { ...vldSchema }
+    for (const key of optKeys) vlds[key] = union(vlds[key], isUndefined)
+    return (tgt: object) => {
+        for (const key of Reflect.ownKeys(vlds)) {
+            if (key in tgt) {
+                if (!vlds[key](tgt[key as keyof object])) return false
+            } else {
+                if (optKeys.includes(key)) continue
+                return false
+            }
+        }
+        return true
+    }
+}
+export function struct<OkSchema extends Assoc<unknown>>(vldSchema: VldMap<unknown, OkSchema>): Vld<object, OkSchema>
+export function struct<OkSchema extends Assoc<unknown>, OptKey extends keyof OkSchema = never>(vldSchema: VldMap<unknown, OkSchema>, optionalKeys?: OptKey[]): Vld<object, Opt<OkSchema, OptKey>>
+export function struct(vldSchema: Assoc<Vld<unknown, any>>, optionalKeys?: (string | symbol)[]) {
+    const vld = interf(vldSchema, optionalKeys as any)
+    return (tgt: object) => {
+        if (!vld(tgt)) return false
+        return protoChain((tgt: object) => {
+            for (const key of Reflect.ownKeys(tgt)) if (!Object.hasOwnProperty.call(vldSchema, key)) return false
+            return true
+        }, tgt)
     }
 }
 

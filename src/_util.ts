@@ -10,4 +10,9 @@ export type Tuple<T, Length extends number, Base extends unknown[] = []> = Base[
 export type Assoc<E> = {
     [key: string | symbol]: E
 }
-export type Opt<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+export type Opt<T, K extends keyof T> = Partial<T> & Omit<T, K>
+export function protoChain(vld: (tgt: object) => boolean, tgt: object | null): boolean {
+    if (tgt === Object.prototype || tgt === null) return true
+    if (!vld(tgt)) return false
+    return protoChain(vld, Object.getPrototypeOf(tgt))
+}
