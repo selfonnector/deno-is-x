@@ -1,6 +1,6 @@
 import { VldMap, OkTypeMap, Ord, Tuple, Assoc, Dict, Album, Opt, protoChain, ownKeys, ownStringKeys, ownSymbolKeys, hasOwnKey } from './_util.ts'
 import { Vld, union } from './core.ts'
-export function isUnknown(_tgt: unknown): _tgt is unknown {
+export function isAny<T>(_tgt: T): _tgt is T {
     return true
 }
 export function isNever(_tgt: unknown): _tgt is never {
@@ -56,7 +56,7 @@ export function ge(base: Ord) {
 export function le(base: Ord) {
     return <T extends Ord>(tgt: T): tgt is T => tgt <= base
 }
-export function len<Length extends number>(vld: Vld<number ,Length>) {
+export function len<Length extends number>(vld: Vld<number, Length>) {
     return <T extends string | unknown[], E extends T extends (infer E)[] ? E : unknown>(tgt: T | (T extends any[] ? Tuple<E, Length> : T)): tgt is T extends any[] ? Tuple<E, Length> : T => {
         return vld((<T>tgt).length)
     }

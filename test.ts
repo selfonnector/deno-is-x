@@ -8,7 +8,7 @@ import {
     extend,
     union,
     ref,
-    isUnknown,
+    isAny,
     isNever,
     isString,
     isNumber,
