@@ -76,6 +76,32 @@ export function elems(...vlds: Vld<unknown, any>[]) {
         return true
     }
 }
+export function allProps<Ok>(vld: Vld<unknown, Ok>) {
+    return (tgt: object): tgt is Assoc<Ok> => {
+        return protoChain((tgt: object) => {
+            for (const key of ownKeys(tgt)) if (!vld(tgt[key])) return false
+            return true
+        }, tgt)
+    }
+}
+export function allPropsStr<Ok>(vld: Vld<unknown, Ok>) {
+    return (tgt: object): tgt is Dict<Ok> => {
+        return protoChain((tgt: object) => {
+            if (ownSymbolKeys(tgt).length > 0) return false
+            for (const key of ownStringKeys(tgt)) if (!vld(tgt[key])) return false
+            return true
+        }, tgt)
+    }
+}
+export function allPropsSym<Ok>(vld: Vld<unknown, Ok>) {
+    return (tgt: object): tgt is Album<Ok> => {
+        return protoChain((tgt: object) => {
+            if (ownStringKeys(tgt).length > 0) return false
+            for (const key of ownSymbolKeys(tgt)) if (!vld(tgt[key])) return false
+            return true
+        }, tgt)
+    }
+}
 export function hasSchema<OkSchema extends Assoc<unknown>>(vldSchema: VldMap<unknown, OkSchema>): Vld<object, OkSchema & Assoc<unknown>>
 export function hasSchema<OkSchema extends Assoc<unknown>, OptKey extends keyof OkSchema = never>(vldSchema: VldMap<unknown, OkSchema>, optionalKeys?: OptKey[]): Vld<object, Opt<OkSchema, OptKey> & Assoc<unknown>>
 export function hasSchema(vldSchema: Assoc<Vld<unknown, any>>, optionalKeys?: (string | symbol)[]) {
@@ -102,32 +128,6 @@ export function schema(vldSchema: Assoc<Vld<unknown, any>>, optionalKeys?: (stri
         if (!vld(tgt)) return false
         return protoChain((tgt: object) => {
             for (const key of ownKeys(tgt)) if (!hasOwnKey(vldSchema, key)) return false
-            return true
-        }, tgt)
-    }
-}
-export function allProps<Ok>(vld: Vld<unknown, Ok>) {
-    return (tgt: object): tgt is Assoc<Ok> => {
-        return protoChain((tgt: object) => {
-            for (const key of ownKeys(tgt)) if (!vld(tgt[key])) return false
-            return true
-        }, tgt)
-    }
-}
-export function allPropsStr<Ok>(vld: Vld<unknown, Ok>) {
-    return (tgt: object): tgt is Dict<Ok> => {
-        return protoChain((tgt: object) => {
-            if (ownSymbolKeys(tgt).length > 0) return false
-            for (const key of ownStringKeys(tgt)) if (!vld(tgt[key])) return false
-            return true
-        }, tgt)
-    }
-}
-export function allPropsSym<Ok>(vld: Vld<unknown, Ok>) {
-    return (tgt: object): tgt is Album<Ok> => {
-        return protoChain((tgt: object) => {
-            if (ownStringKeys(tgt).length > 0) return false
-            for (const key of ownSymbolKeys(tgt)) if (!vld(tgt[key])) return false
             return true
         }, tgt)
     }

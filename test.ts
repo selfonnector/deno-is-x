@@ -29,9 +29,9 @@ import {
     len,
     allElems,
     elems,
-    hasSchema,
-    schema,
     allProps,
     allPropsStr,
-    allPropsSym
+    allPropsSym,
+    hasSchema,
+    schema
 } from './mod.ts'
