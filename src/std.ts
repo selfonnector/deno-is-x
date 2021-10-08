@@ -61,24 +61,24 @@ export function len<Length extends number>(vld: Vld<number ,Length>) {
         return vld((<T>tgt).length)
     }
 }
-export function all<Tgt, Ok extends Tgt>(vld: Vld<Tgt, Ok>) {
+export function allElems<Tgt, Ok extends Tgt>(vld: Vld<Tgt, Ok>) {
     return (tgt: Tgt[]): tgt is Ok[] => {
         for (const e of tgt) if (!vld(e)) return false
         return true
     }
 }
-export function tuple<Tgt, Ok extends Tgt, Vlds extends Vld<Tgt, any>[]>(headVld: Vld<Tgt, Ok>, ...tailVlds: Vlds): Vld<Tgt[], [Ok, ...OkTypeMap<Vlds, Tgt>]>
-export function tuple<Vlds extends Vld<unknown, any>[]>(...vlds: Vlds): Vld<unknown[], OkTypeMap<Vlds>>
-export function tuple(...vlds: Vld<unknown, any>[]) {
+export function elems<Tgt, Ok extends Tgt, Vlds extends Vld<Tgt, any>[]>(headVld: Vld<Tgt, Ok>, ...tailVlds: Vlds): Vld<Tgt[], [Ok, ...OkTypeMap<Vlds, Tgt>]>
+export function elems<Vlds extends Vld<unknown, any>[]>(...vlds: Vlds): Vld<unknown[], OkTypeMap<Vlds>>
+export function elems(...vlds: Vld<unknown, any>[]) {
     return (tgt: unknown[]) => {
         if (tgt.length !== vlds.length) return false
         for (let i = 0; i < tgt.length; i++) if (!vlds[i](tgt[i])) return false
         return true
     }
 }
-export function interf<OkSchema extends Assoc<unknown>>(vldSchema: VldMap<unknown, OkSchema>): Vld<object, OkSchema & Assoc<unknown>>
-export function interf<OkSchema extends Assoc<unknown>, OptKey extends keyof OkSchema = never>(vldSchema: VldMap<unknown, OkSchema>, optionalKeys?: OptKey[]): Vld<object, Opt<OkSchema, OptKey> & Assoc<unknown>>
-export function interf(vldSchema: Assoc<Vld<unknown, any>>, optionalKeys?: (string | symbol)[]) {
+export function hasSchema<OkSchema extends Assoc<unknown>>(vldSchema: VldMap<unknown, OkSchema>): Vld<object, OkSchema & Assoc<unknown>>
+export function hasSchema<OkSchema extends Assoc<unknown>, OptKey extends keyof OkSchema = never>(vldSchema: VldMap<unknown, OkSchema>, optionalKeys?: OptKey[]): Vld<object, Opt<OkSchema, OptKey> & Assoc<unknown>>
+export function hasSchema(vldSchema: Assoc<Vld<unknown, any>>, optionalKeys?: (string | symbol)[]) {
     const optKeys = optionalKeys ? optionalKeys : []
     const vlds = { ...vldSchema }
     for (const key of optKeys) vlds[key] = union(vlds[key], isUndefined)
@@ -94,10 +94,10 @@ export function interf(vldSchema: Assoc<Vld<unknown, any>>, optionalKeys?: (stri
         return true
     }
 }
-export function struct<OkSchema extends Assoc<unknown>>(vldSchema: VldMap<unknown, OkSchema>): Vld<object, OkSchema>
-export function struct<OkSchema extends Assoc<unknown>, OptKey extends keyof OkSchema = never>(vldSchema: VldMap<unknown, OkSchema>, optionalKeys?: OptKey[]): Vld<object, Opt<OkSchema, OptKey>>
-export function struct(vldSchema: Assoc<Vld<unknown, any>>, optionalKeys?: (string | symbol)[]) {
-    const vld = interf(vldSchema, optionalKeys as any)
+export function schema<OkSchema extends Assoc<unknown>>(vldSchema: VldMap<unknown, OkSchema>): Vld<object, OkSchema>
+export function schema<OkSchema extends Assoc<unknown>, OptKey extends keyof OkSchema = never>(vldSchema: VldMap<unknown, OkSchema>, optionalKeys?: OptKey[]): Vld<object, Opt<OkSchema, OptKey>>
+export function schema(vldSchema: Assoc<Vld<unknown, any>>, optionalKeys?: (string | symbol)[]) {
+    const vld = hasSchema(vldSchema, optionalKeys as any)
     return (tgt: object) => {
         if (!vld(tgt)) return false
         return protoChain((tgt: object) => {
@@ -106,7 +106,7 @@ export function struct(vldSchema: Assoc<Vld<unknown, any>>, optionalKeys?: (stri
         }, tgt)
     }
 }
-export function assoc<Ok>(vld: Vld<unknown, Ok>) {
+export function allProps<Ok>(vld: Vld<unknown, Ok>) {
     return (tgt: object): tgt is Assoc<Ok> => {
         return protoChain((tgt: object) => {
             for (const key of ownKeys(tgt)) if (!vld(tgt[key])) return false
@@ -114,7 +114,7 @@ export function assoc<Ok>(vld: Vld<unknown, Ok>) {
         }, tgt)
     }
 }
-export function dict<Ok>(vld: Vld<unknown, Ok>) {
+export function allPropsStr<Ok>(vld: Vld<unknown, Ok>) {
     return (tgt: object): tgt is Dict<Ok> => {
         return protoChain((tgt: object) => {
             if (ownSymbolKeys(tgt).length > 0) return false
@@ -123,7 +123,7 @@ export function dict<Ok>(vld: Vld<unknown, Ok>) {
         }, tgt)
     }
 }
-export function album<Ok>(vld: Vld<unknown, Ok>) {
+export function allPropsSym<Ok>(vld: Vld<unknown, Ok>) {
     return (tgt: object): tgt is Album<Ok> => {
         return protoChain((tgt: object) => {
             if (ownStringKeys(tgt).length > 0) return false

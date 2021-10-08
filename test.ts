@@ -27,11 +27,11 @@ import {
     ge,
     le,
     len,
-    all,
-    tuple,
-    interf,
-    struct,
-    assoc,
-    dict,
-    album
+    allElems,
+    elems,
+    hasSchema,
+    schema,
+    allProps,
+    allPropsStr,
+    allPropsSym
 } from './mod.ts'
