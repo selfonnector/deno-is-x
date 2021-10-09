@@ -13,7 +13,7 @@ export function union(...vlds: Vld<unknown, any>[]) {
         return false
     }
 }
-export function ref<Args extends unknown[], Tgt, Ok extends Tgt>(vldGet: (...args: Args) => Vld<Tgt, Ok>, ...args: Args) {
+export function lazy<Args extends unknown[], Tgt, Ok extends Tgt>(vldGet: (...args: Args) => Vld<Tgt, Ok>, ...args: Args) {
     let cacheVld: Vld<Tgt, Ok> | null = null
     return (tgt: Tgt): tgt is Ok => {
         if (cacheVld === null) cacheVld = vldGet(...args)

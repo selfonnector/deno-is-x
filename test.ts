@@ -7,7 +7,7 @@ import {
     OkType,
     extend,
     union,
-    ref,
+    lazy,
     isAny,
     isNever,
     isString,
