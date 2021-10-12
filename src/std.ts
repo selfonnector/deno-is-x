@@ -44,17 +44,17 @@ export function eq<T>(base: T): Vld<unknown, T>
 export function eq(base: unknown) {
     return (tgt: unknown) => tgt === base
 }
-export function gt(base: Ord) {
-    return <T extends Ord>(tgt: T): tgt is T => tgt > base
+export function gt<T extends Ord>(base: T) {
+    return (tgt: Ord<T>): tgt is Ord<T> => tgt > base
 }
-export function lt(base: Ord) {
-    return <T extends Ord>(tgt: T): tgt is T => tgt < base
+export function lt<T extends Ord>(base: T) {
+    return (tgt: Ord<T>): tgt is Ord<T> => tgt < base
 }
-export function ge(base: Ord) {
-    return <T extends Ord>(tgt: T): tgt is T => tgt >= base
+export function ge<T extends Ord>(base: T) {
+    return (tgt: Ord<T>): tgt is Ord<T> => tgt >= base
 }
-export function le(base: Ord) {
-    return <T extends Ord>(tgt: T): tgt is T => tgt <= base
+export function le<T extends Ord>(base: T) {
+    return (tgt: Ord<T>): tgt is Ord<T> => tgt <= base
 }
 export function len<Length extends number>(vld: Vld<number, Length>) {
     return <T extends string | unknown[], E extends T extends (infer E)[] ? E : unknown>(tgt: T | (T extends any[] ? Tuple<E, Length> : T)): tgt is T extends any[] ? Tuple<E, Length> : T => {
