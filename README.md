@@ -43,7 +43,7 @@ The validation in this module is specifically the following `Vld` type function.
 - `album()` - Takes `elemVld` and returns `Vld`. That `Vld` returns true if `tgt` is a plain object, the keys of all the properties it owns are **symbols**, and the values of those properties are valid for `elemVld`.
 - `interf()` - Takes `vldSchema` and the optional `optionalKeys` and returns `Vld`. That `Vld` returns true if `tgt` is a plain object, and each property it owns is valid for each property owned by `vldSchema`. Also, for a property that has a key in `optionalKeys`, it is valid even if the key does not exist or the value is undefined.
 - `struct()` - Takes `vldSchema` and the optional `optionalKeys` and returns `Vld`. That `Vld` returns true if `tgt` is a plain object, and each property it owns is valid for each property owned by `vldSchema`, and **it owns only properties owned by `vldSchema`**. Also, for a property that has a key in `optionalKeys`, it is valid even if the key does not exist or the value is undefined.
-- `extend()` - Takes `baseVld` and` vld` and returns `Vld`. That `Vld` returns true if `tgt` is valid for `baseVld` and `vld`.
+- `extend()` - Takes `vlds` and returns `Vld`. That `Vld` returns true if `tgt` is valid for all elements of `vlds`.
 - `union()` - Takes `vlds` and returns `Vld`. That `Vld` returns true if `tgt` is valid for any element of `vlds`.
 - `lazy()` - Takes `vldGet` and `args` and returns `Vld`. That `Vld` returns true if `tgt` is valid for the return value of passing all the elements of `args` to `vldGet`.
 
