@@ -1,9 +1,9 @@
 import { assertEquals } from 'https://deno.land/std@0.110.0/testing/asserts.ts'
-import { Vld, extend, union, lazy } from './core.ts'
+import { TgVld, extend, union, lazy } from './core.ts'
 import { isString, len, allElems, eq, elems } from './std.ts'
 import { struct } from './pre.ts'
 type LoopNest = { a?: LoopNest }
-function loopNest(): Vld<unknown, LoopNest> {
+function loopNest(): TgVld<unknown, LoopNest> {
     return struct({
         a: lazy(loopNest)
     }, ['a'])

@@ -10,42 +10,42 @@ This module provides some basic utilities for creating or utilizing type-guarded
 
 ## Usage
 
-The validation in this module is specifically the following `Vld` type function.
+The validation in this module is specifically the following `TgVld` type function.
 
 ### Types
 
-- `Vld` - A functional type that takes `tgt` and returns a boolean. If `tgt` is valid, return true to perform typeguard.
-- `TgtType` - The type of `tgt` in `Vld`.
-- `OkType` - The type of type guard for `tgt` in `Vld`.
+- `TgVld` - A functional type that takes `tgt` and returns a boolean. If `tgt` is valid, return true to perform typeguard.
+- `TgtType` - The type of `tgt` in `TgVld`.
+- `OkType` - The type of type guard for `tgt` in `TgVld`.
 
 ### Functions
 
-- `isAny()` - A `Vld` that always returns true.
-- `isNever()` - A `Vld` that always returns false.
-- `isString()` - A `Vld` that returns true if the `tgt` is a string.
-- `isNumber()` - A `Vld` that returns true if the `tgt` is a number.
-- `isInt()` - A `Vld` that returns true if the `tgt` is an integer.
-- `isBigInt()` - A `Vld` that returns true if the `tgt` is a bigint.
-- `isBoolean()` - A `Vld` that returns true if the `tgt` is a boolean.
-- `isSymbol()` - A `Vld` that returns true if the `tgt` is a symbol.
-- `isNull()` - A `Vld` that returns true if the `tgt` is a null.
-- `isUndefined()` - A `Vld` that returns true if the `tgt` is a undefined.
-- `eq()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is equal to `base`.
-- `gt()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is greater than `base`.
-- `lt()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is less than `base`.
-- `ge()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is greater than or equal to `base`.
-- `le()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is less than or equal to `base`.
-- `len()` - Takes `vld` and returns `Vld`. That `Vld` returns true if the value of the `length` property of `tgt` is valid for `vld`.
-- `array()` - Takes `elemVld` and the optional `lenVld` and returns `Vld`. That `Vld` returns true if `tgt` is a plain array, all elements are valid for `elemVld`, and the value of the `length` property is valid for `lenVld`.
-- `tuple()` - Takes `elemVlds` and returns `Vld`. That `Vld` returns true if `tgt` is a plain array and each element is valid for each element of `elemVlds`.
-- `assoc()` - Takes `elemVld` and returns `Vld`. That `Vld` returns true if `tgt` is a plain object and the values of all the properties it owns are valid for `elemVld`.
-- `dict()` - Takes `elemVld` and returns `Vld`. That `Vld` returns true if `tgt` is a plain object, the keys of all the properties it owns are **strings**, and the values of those properties are valid for `elemVld`.
-- `album()` - Takes `elemVld` and returns `Vld`. That `Vld` returns true if `tgt` is a plain object, the keys of all the properties it owns are **symbols**, and the values of those properties are valid for `elemVld`.
-- `interf()` - Takes `vldSchema` and the optional `optionalKeys` and returns `Vld`. That `Vld` returns true if `tgt` is a plain object, and each property it owns is valid for each property owned by `vldSchema`. Also, for a property that has a key in `optionalKeys`, it is valid even if the key does not exist or the value is undefined.
-- `struct()` - Takes `vldSchema` and the optional `optionalKeys` and returns `Vld`. That `Vld` returns true if `tgt` is a plain object, and each property it owns is valid for each property owned by `vldSchema`, and **it owns only properties owned by `vldSchema`**. Also, for a property that has a key in `optionalKeys`, it is valid even if the key does not exist or the value is undefined.
-- `extend()` - Takes `vlds` and returns `Vld`. That `Vld` returns true if `tgt` is valid for all elements of `vlds`.
-- `union()` - Takes `vlds` and returns `Vld`. That `Vld` returns true if `tgt` is valid for any element of `vlds`.
-- `lazy()` - Takes `vldGet` and `args` and returns `Vld`. That `Vld` returns true if `tgt` is valid for the return value of passing all the elements of `args` to `vldGet`.
+- `isAny()` - A `TgVld` that always returns true.
+- `isNever()` - A `TgVld` that always returns false.
+- `isString()` - A `TgVld` that returns true if the `tgt` is a string.
+- `isNumber()` - A `TgVld` that returns true if the `tgt` is a number.
+- `isInt()` - A `TgVld` that returns true if the `tgt` is an integer.
+- `isBigInt()` - A `TgVld` that returns true if the `tgt` is a bigint.
+- `isBoolean()` - A `TgVld` that returns true if the `tgt` is a boolean.
+- `isSymbol()` - A `TgVld` that returns true if the `tgt` is a symbol.
+- `isNull()` - A `TgVld` that returns true if the `tgt` is a null.
+- `isUndefined()` - A `TgVld` that returns true if the `tgt` is a undefined.
+- `eq()` - Takes `base` and returns `TgVld`. That `TgVld` returns true if `tgt` is equal to `base`.
+- `gt()` - Takes `base` and returns `TgVld`. That `TgVld` returns true if `tgt` is greater than `base`.
+- `lt()` - Takes `base` and returns `TgVld`. That `TgVld` returns true if `tgt` is less than `base`.
+- `ge()` - Takes `base` and returns `TgVld`. That `TgVld` returns true if `tgt` is greater than or equal to `base`.
+- `le()` - Takes `base` and returns `TgVld`. That `TgVld` returns true if `tgt` is less than or equal to `base`.
+- `len()` - Takes `vld` and returns `TgVld`. That `TgVld` returns true if the value of the `length` property of `tgt` is valid for `vld`.
+- `array()` - Takes `elemVld` and the optional `lenVld` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain array, all elements are valid for `elemVld`, and the value of the `length` property is valid for `lenVld`.
+- `tuple()` - Takes `elemVlds` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain array and each element is valid for each element of `elemVlds`.
+- `assoc()` - Takes `elemVld` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain object and the values of all the properties it owns are valid for `elemVld`.
+- `dict()` - Takes `elemVld` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain object, the keys of all the properties it owns are **strings**, and the values of those properties are valid for `elemVld`.
+- `album()` - Takes `elemVld` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain object, the keys of all the properties it owns are **symbols**, and the values of those properties are valid for `elemVld`.
+- `interf()` - Takes `vldSchema` and the optional `optionalKeys` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain object, and each property it owns is valid for each property owned by `vldSchema`. Also, for a property that has a key in `optionalKeys`, it is valid even if the key does not exist or the value is undefined.
+- `struct()` - Takes `vldSchema` and the optional `optionalKeys` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain object, and each property it owns is valid for each property owned by `vldSchema`, and **it owns only properties owned by `vldSchema`**. Also, for a property that has a key in `optionalKeys`, it is valid even if the key does not exist or the value is undefined.
+- `extend()` - Takes `vlds` and returns `TgVld`. That `TgVld` returns true if `tgt` is valid for all elements of `vlds`.
+- `union()` - Takes `vlds` and returns `TgVld`. That `TgVld` returns true if `tgt` is valid for any element of `vlds`.
+- `lazy()` - Takes `vldGet` and `args` and returns `TgVld`. That `TgVld` returns true if `tgt` is valid for the return value of passing all the elements of `args` to `vldGet`.
 
 ### Examples
 
