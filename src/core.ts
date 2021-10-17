@@ -1,4 +1,5 @@
 import type { OkTypeMap } from './_util.ts'
+export type Vld<Tgt> = (tgt: Tgt) => boolean
 export type TgVld<Tgt, Ok extends Tgt> = (tgt: Tgt) => tgt is Ok
 export type TgtType<V> = V extends TgVld<infer Tgt, any> ? Tgt : never
 export type OkType<V, Tgt = any> = V extends TgVld<any, infer Ok> ? Ok extends Tgt ? Ok : never : never
