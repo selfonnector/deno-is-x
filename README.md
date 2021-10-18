@@ -16,7 +16,7 @@ The validation in this module is specifically the following `TgVld` type functio
 
 - `Vld` - A functional type that takes `tgt` and returns a boolean. If `tgt` is valid, return true.
 - `TgVld` - A functional type that takes `tgt` and returns a boolean. If `tgt` is valid, return true to **perform typeguard**.
-- `TgtType` - The type of `tgt` in `TgVld`.
+- `TgtType` - The type of `tgt` in `Vld`.
 - `OkType` - The type of type guard for `tgt` in `TgVld`.
 
 ### Functions
