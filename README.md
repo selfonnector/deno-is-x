@@ -10,14 +10,14 @@ This module provides some basic utilities for creating or utilizing type-guarded
 
 ## Usage
 
-The validation in this module is specifically the following `TgVld` type function.
+The validation in this module is specifically the following `Vld` type function.
 
 ### Types
 
 - `Vld` - A functional type that takes `tgt` and returns a boolean. If `tgt` is valid, return true.
 - `TgVld` - A functional type that takes `tgt` and returns a boolean. If `tgt` is valid, return true to **perform typeguard**.
 - `TgtType` - The type of `tgt` in `Vld`.
-- `OkType` - The type of type guard for `tgt` in `Vld`.
+- `OkType` - The type of type guard for `tgt` in `TgVld`, or the type of `tgt` in `Vld`.
 
 ### Functions
 
@@ -44,9 +44,9 @@ The validation in this module is specifically the following `TgVld` type functio
 - `album()` - Takes `elemVld` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain object, the keys of all the properties it owns are **symbols**, and the values of those properties are valid for `elemVld`.
 - `interf()` - Takes `vldSchema` and the optional `optionalKeys` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain object, and each property it owns is valid for each property owned by `vldSchema`. Also, for a property that has a key in `optionalKeys`, it is valid even if the key does not exist or the value is undefined.
 - `struct()` - Takes `vldSchema` and the optional `optionalKeys` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain object, and each property it owns is valid for each property owned by `vldSchema`, and **it owns only properties owned by `vldSchema`**. Also, for a property that has a key in `optionalKeys`, it is valid even if the key does not exist or the value is undefined.
-- `extend()` - Takes `vlds` and returns `TgVld`. That `TgVld` returns true if `tgt` is valid for all elements of `vlds`.
-- `union()` - Takes `vlds` and returns `TgVld`. That `TgVld` returns true if `tgt` is valid for any element of `vlds`.
-- `lazy()` - Takes `vldGet` and `args` and returns `TgVld`. That `TgVld` returns true if `tgt` is valid for the return value of passing all the elements of `args` to `vldGet`.
+- `extend()` - Takes `vlds` and returns `Vld`. That `Vld` returns true if `tgt` is valid for all elements of `vlds`.
+- `union()` - Takes `vlds` and returns `Vld`. That `Vld` returns true if `tgt` is valid for any element of `vlds`.
+- `lazy()` - Takes `vldGet` and `args` and returns `Vld`. That `Vld` returns true if `tgt` is valid for the return value of passing all the elements of `args` to `vldGet`.
 
 ### Examples
 

@@ -2,10 +2,12 @@ import type { OkTypeMap } from './_util.ts'
 export type Vld<Tgt> = (tgt: Tgt) => boolean
 export type TgVld<Tgt, Ok extends Tgt> = (tgt: Tgt) => tgt is Ok
 export type TgtType<V> = V extends Vld<infer Tgt> ? Tgt : never
-export type OkType<V, Tgt = any> = V extends TgVld<any, infer Ok> ? Ok extends Tgt ? Ok : never : never
-export function extend<A, B extends A, C extends B>(baseVld: TgVld<A, B>, ...vlds: TgVld<B, C>[]): TgVld<A, C>
-export function extend<Ok>(...vlds: TgVld<unknown, Ok>[]): TgVld<unknown, Ok>
-export function extend(...vlds: TgVld<unknown, any>[]) {
+type _OkType<V> = V extends TgVld<any, infer Ok> ? Ok : V extends Vld<infer Tgt> ? Tgt : never
+export type OkType<V, Tgt = any> = Tgt extends TgtType<V> ? _OkType<V> extends Tgt ? _OkType<V> : never : never
+export function extend<A, B extends A, C extends B>(baseVld: TgVld<A, B>, subVld: TgVld<B, C>, ...vlds: Vld<C>[]): TgVld<A, C>
+export function extend<A, B extends A>(baseVld: TgVld<A, B>, ...vlds: Vld<B>[]): TgVld<A, B>
+export function extend<Tgt>(...vlds: Vld<Tgt>[]): Vld<Tgt>
+export function extend(...vlds: Vld<unknown>[]) {
     return (tgt: unknown) => {
         for (const vld of vlds) if (!vld(tgt)) return false
         return true
@@ -13,15 +15,18 @@ export function extend(...vlds: TgVld<unknown, any>[]) {
 }
 export function union<Tgt, Ok extends Tgt, Vlds extends TgVld<Tgt, any>[]>(baseVld: TgVld<Tgt, Ok>, ...vlds: Vlds): TgVld<Tgt, Ok | OkTypeMap<Vlds, Tgt>[number]>
 export function union<Vlds extends TgVld<unknown, any>[]>(...vlds: Vlds): TgVld<unknown, OkTypeMap<Vlds>[number]>
-export function union(...vlds: TgVld<unknown, any>[]) {
+export function union<Tgt>(...vlds: Vld<Tgt>[]): Vld<Tgt>
+export function union(...vlds: Vld<unknown>[]) {
     return (tgt: unknown) => {
         for (const vld of vlds) if (vld(tgt)) return true
         return false
     }
 }
-export function lazy<Args extends unknown[], Tgt, Ok extends Tgt>(vldGet: (...args: Args) => TgVld<Tgt, Ok>, ...args: Args) {
-    let cacheVld: TgVld<Tgt, Ok> | null = null
-    return (tgt: Tgt): tgt is Ok => {
+export function lazy<Args extends unknown[], Tgt, Ok extends Tgt>(vldGet: (...args: Args) => TgVld<Tgt, Ok>, ...args: Args): TgVld<Tgt, Ok>
+export function lazy<Args extends unknown[], Tgt>(vldGet: (...args: Args) => Vld<Tgt>, ...args: Args): Vld<Tgt>
+export function lazy<Args extends unknown[]>(vldGet: (...args: Args) => Vld<unknown>, ...args: Args) {
+    let cacheVld: Vld<unknown> | null = null
+    return (tgt: unknown) => {
         if (cacheVld === null) cacheVld = vldGet(...args)
         return cacheVld(tgt)
     }
