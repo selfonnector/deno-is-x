@@ -21,7 +21,7 @@ The validation in this module is specifically the following `Vld` type function.
 
 ### Functions
 
-- `isAny()` - A `TgVld` that always returns true.
+- `isAny()` - A `Vld` that always returns true.
 - `isNever()` - A `TgVld` that always returns false.
 - `isString()` - A `TgVld` that returns true if the `tgt` is a string.
 - `isNumber()` - A `TgVld` that returns true if the `tgt` is a number.
@@ -32,10 +32,10 @@ The validation in this module is specifically the following `Vld` type function.
 - `isNull()` - A `TgVld` that returns true if the `tgt` is a null.
 - `isUndefined()` - A `TgVld` that returns true if the `tgt` is a undefined.
 - `eq()` - Takes `base` and returns `TgVld`. That `TgVld` returns true if `tgt` is equal to `base`.
-- `gt()` - Takes `base` and returns `TgVld`. That `TgVld` returns true if `tgt` is greater than `base`.
-- `lt()` - Takes `base` and returns `TgVld`. That `TgVld` returns true if `tgt` is less than `base`.
-- `ge()` - Takes `base` and returns `TgVld`. That `TgVld` returns true if `tgt` is greater than or equal to `base`.
-- `le()` - Takes `base` and returns `TgVld`. That `TgVld` returns true if `tgt` is less than or equal to `base`.
+- `gt()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is greater than `base`.
+- `lt()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is less than `base`.
+- `ge()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is greater than or equal to `base`.
+- `le()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is less than or equal to `base`.
 - `len()` - Takes `vld` and returns `TgVld`. That `TgVld` returns true if the value of the `length` property of `tgt` is valid for `vld`.
 - `array()` - Takes `elemVld` and the optional `lenVld` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain array, all elements are valid for `elemVld`, and the value of the `length` property is valid for `lenVld`.
 - `tuple()` - Takes `elemVlds` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain array and each element is valid for each element of `elemVlds`.
@@ -44,9 +44,9 @@ The validation in this module is specifically the following `Vld` type function.
 - `album()` - Takes `elemVld` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain object, the keys of all the properties it owns are **symbols**, and the values of those properties are valid for `elemVld`.
 - `interf()` - Takes `vldSchema` and the optional `optionalKeys` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain object, and each property it owns is valid for each property owned by `vldSchema`. Also, for a property that has a key in `optionalKeys`, it is valid even if the key does not exist or the value is undefined.
 - `struct()` - Takes `vldSchema` and the optional `optionalKeys` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain object, and each property it owns is valid for each property owned by `vldSchema`, and **it owns only properties owned by `vldSchema`**. Also, for a property that has a key in `optionalKeys`, it is valid even if the key does not exist or the value is undefined.
-- `extend()` - Takes `vlds` and returns `Vld`. That `Vld` returns true if `tgt` is valid for all elements of `vlds`.
-- `union()` - Takes `vlds` and returns `Vld`. That `Vld` returns true if `tgt` is valid for any element of `vlds`.
-- `lazy()` - Takes `vldGet` and `args` and returns `Vld`. That `Vld` returns true if `tgt` is valid for the return value of passing all the elements of `args` to `vldGet`.
+- `extend()` - Takes `vlds` and returns `TgVld`. That `TgVld` returns true if `tgt` is valid for all elements of `vlds`.
+- `union()` - Takes `vlds` and returns `TgVld`. That `TgVld` returns true if `tgt` is valid for any element of `vlds`.
+- `lazy()` - Takes `vldGet` and `args` and returns `TgVld`. That `TgVld` returns true if `tgt` is valid for the return value of passing all the elements of `args` to `vldGet`.
 
 ### Examples
 
@@ -79,7 +79,7 @@ Extend:
 import { isString, extend }
 from 'https://deno.land/x/is_x/mod.ts'
 
-function isURLFmt<T extends string>(tgt: T): tgt is T {
+function isURLFmt(tgt: string) {
     // ...
     return true
 }
@@ -94,11 +94,11 @@ if (isURL(tgt)) {
 Recursive:
 
 ```ts
-import { Vld, struct, lazy }
+import { TgVld, struct, lazy }
 from 'https://deno.land/x/is_x/mod.ts'
 
 type LoopNest = { a?: LoopNest }
-function loopNest(): Vld<unknown, LoopNest> {
+function loopNest(): TgVld<unknown, LoopNest> {
     return struct({
         a: lazy(loopNest)
     }, ['a'])

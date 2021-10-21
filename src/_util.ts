@@ -1,6 +1,7 @@
-import type { TgVld, OkType } from './core.ts'
-export type TgVldMap<Tgt, Oks> = {
-    [P in keyof Oks]: Oks[P] extends Tgt ? TgVld<Tgt, Oks[P]> : never
+import type { Vld, TgVld, OkType } from './core.ts'
+export type VldType<Tgt, Ok extends Tgt> = Tgt extends Ok ? Vld<Tgt> : TgVld<Tgt, Ok>
+export type VldTypeMap<Tgt, Oks> = {
+    [P in keyof Oks]: VldType<Tgt, Oks[P] extends Tgt ? Oks[P] : never>
 }
 export type OkTypeMap<Vlds, Tgt = any> = {
     [P in keyof Vlds]: OkType<Vlds[P], Tgt>
