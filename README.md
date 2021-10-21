@@ -26,11 +26,13 @@ The validation in this module is specifically the following `Vld` type function.
 - `isString()` - A `TgVld` that returns true if the `tgt` is a string.
 - `isNumber()` - A `TgVld` that returns true if the `tgt` is a number.
 - `isInt()` - A `TgVld` that returns true if the `tgt` is an integer.
+- `isNonnegInt()` - A `TgVld` that returns true if the `tgt` is a non-negative integer.
 - `isBigInt()` - A `TgVld` that returns true if the `tgt` is a bigint.
 - `isBoolean()` - A `TgVld` that returns true if the `tgt` is a boolean.
 - `isSymbol()` - A `TgVld` that returns true if the `tgt` is a symbol.
 - `isNull()` - A `TgVld` that returns true if the `tgt` is a null.
 - `isUndefined()` - A `TgVld` that returns true if the `tgt` is a undefined.
+- `nodupElems()` - A `Vld` that returns true if there are no duplicate elements in the `tgt`.
 - `eq()` - Takes `base` and returns `TgVld`. That `TgVld` returns true if `tgt` is equal to `base`.
 - `gt()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is greater than `base`.
 - `lt()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is less than `base`.

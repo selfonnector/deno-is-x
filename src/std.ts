@@ -36,6 +36,14 @@ export function isObject(tgt: unknown): tgt is object {
 export function isArray(tgt: unknown): tgt is unknown[] {
     return Array.isArray(tgt)
 }
+export function nodupElems(tgt: unknown[]) {
+    const scanned: unknown[] = []
+    for (const e of tgt) {
+        if (scanned.includes(e)) return false
+        scanned.push(e)
+    }
+    return true
+}
 export function proto<T extends object>(vld: TgVld<object | null, T>): TgVld<object, T>
 export function proto(vld: Vld<object | null>): Vld<object>
 export function proto(vld: Vld<object | null>) {

@@ -1,6 +1,6 @@
 import { assertEquals } from 'https://deno.land/std@0.110.0/testing/asserts.ts'
 import { isAny, isString, eq } from './std.ts'
-import { array, tuple, assoc, dict, album, interf, struct } from './pre.ts'
+import { isNonnegInt, array, tuple, assoc, dict, album, interf, struct } from './pre.ts'
 class UnextendedClass {}
 class SubObject extends Object {}
 class SubArray extends Array {}
@@ -12,6 +12,39 @@ const unextCls = new UnextendedClass
 const subObj = new SubObject
 const subAry = new SubArray
 const nullProtoObj = Object.create(null)
+Deno.test({
+    name: 'isNonnegInt type test',
+    fn() {
+        const vld = isNonnegInt
+        assertEquals(vld(''), false)
+        assertEquals(vld(0), true)
+        assertEquals(vld(0n), false)
+        assertEquals(vld(false), false)
+        assertEquals(vld(symA), false)
+        assertEquals(vld(null), false)
+        assertEquals(vld(undefined), false)
+        assertEquals(vld(obj), false)
+        assertEquals(vld(ary), false)
+    }
+})
+Deno.test({
+    name: 'isNonnegInt int test',
+    fn() {
+        const vld = isNonnegInt
+        assertEquals(vld(0.9), false)
+        assertEquals(vld(1), true)
+        assertEquals(vld(1.1), false)
+    }
+})
+Deno.test({
+    name: 'isNonnegInt non-negative test',
+    fn() {
+        const vld = isNonnegInt
+        assertEquals(vld(-1), false)
+        assertEquals(vld(0), true)
+        assertEquals(vld(1), true)
+    }
+})
 Deno.test({
     name: 'array type test',
     fn() {

@@ -1,6 +1,7 @@
 import { VldTypeMap, Tuple, Assoc, Album, Dict, Opt } from './_util.ts'
 import { Vld, TgVld, extend } from './core.ts'
-import { isObject, isArray, proto, eq, len, allElems, elems, allProps, allPropsStr, allPropsSym, hasSchema, schema } from './std.ts'
+import { isInt, isObject, isArray, proto, eq, ge, len, allElems, elems, allProps, allPropsStr, allPropsSym, hasSchema, schema } from './std.ts'
+export const isNonnegInt = extend(isInt, ge(0))
 export function array<E, Length extends number>(elemVld: TgVld<unknown, E>, lenVld?: TgVld<number, Length>): TgVld<unknown, Tuple<E, Length>>
 export function array<E>(elemVld: TgVld<unknown, E>, lenVld?: Vld<number>): TgVld<unknown, E[]>
 export function array<Length extends number>(elemVld: Vld<unknown>, lenVld?: TgVld<number, Length>): TgVld<unknown, Tuple<unknown, Length>>
