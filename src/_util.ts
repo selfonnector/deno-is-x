@@ -21,7 +21,7 @@ export type Key<T = any> = keyof T & (string | symbol)
 export type StringKey<T = any> = keyof T & string
 export type SymbolKey<T = any> = keyof T & symbol
 export type Opt<T, K extends keyof T> = Partial<T> & Omit<T, K>
-export function protoChain(vld: (tgt: object) => boolean, tgt: object | null): boolean {
+export function protoChain(vld: Vld<object>, tgt: object | null): boolean {
     if (tgt === Object.prototype || tgt === null) return true
     if (!vld(tgt)) return false
     return protoChain(vld, Object.getPrototypeOf(tgt))
