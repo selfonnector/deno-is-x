@@ -1,4 +1,4 @@
-import { VldTypeMap, Tuple, Assoc, Album, Dict, Opt } from './_util.ts'
+import { OkTypeMap, Tuple, Assoc, Album, Dict, Opt } from './_util.ts'
 import { Vld, TgVld, extend } from './core.ts'
 import { isInt, isObject, isArray, proto, eq, ge, len, allElems, elems, allProps, allPropsStr, allPropsSym, hasSchema, schema } from './std.ts'
 export const isNonnegInt = extend(isInt, ge(0))
@@ -28,13 +28,13 @@ export function album(elemVld: Vld<unknown>): Vld<unknown>
 export function album(elemVld: Vld<unknown>) {
     return extend(isObject, extend(proto(eq(Object.prototype)), allPropsSym(elemVld)))
 }
-export function interf<OkSchema extends Assoc<unknown>>(vldSchema: VldTypeMap<unknown, OkSchema>): TgVld<unknown, OkSchema & Assoc<unknown>>
-export function interf<OkSchema extends Assoc<unknown>, OptKey extends keyof OkSchema = never>(vldSchema: VldTypeMap<unknown, OkSchema>, optionalKeys?: OptKey[]): TgVld<unknown, Opt<OkSchema, OptKey> & Assoc<unknown>>
+export function interf<Vlds extends Assoc<Vld<unknown>>>(vldSchema: Vlds): TgVld<unknown, OkTypeMap<Vlds> & Assoc<unknown>>
+export function interf<Vlds extends Assoc<Vld<unknown>>, OptKey extends keyof Vlds = never>(vldSchema: Vlds, optionalKeys?: OptKey[]): TgVld<unknown, Opt<OkTypeMap<Vlds>, OptKey> & Assoc<unknown>>
 export function interf(vldSchema: Assoc<Vld<unknown>>, optionalKeys?: (string | symbol)[]) {
-    return extend(isObject, extend(proto(eq(Object.prototype)), hasSchema(vldSchema, optionalKeys as any)))
+    return extend(isObject, extend(proto(eq(Object.prototype)), hasSchema(vldSchema, optionalKeys)))
 }
-export function struct<OkSchema extends Assoc<unknown>>(vldSchema: VldTypeMap<unknown, OkSchema>): TgVld<unknown, OkSchema>
-export function struct<OkSchema extends Assoc<unknown>, OptKey extends keyof OkSchema = never>(vldSchema: VldTypeMap<unknown, OkSchema>, optionalKeys?: OptKey[]): TgVld<unknown, Opt<OkSchema, OptKey>>
+export function struct<Vlds extends Assoc<Vld<unknown>>>(vldSchema: Vlds): TgVld<unknown, OkTypeMap<Vlds>>
+export function struct<Vlds extends Assoc<Vld<unknown>>, OptKey extends keyof Vlds = never>(vldSchema: Vlds, optionalKeys?: OptKey[]): TgVld<unknown, Opt<OkTypeMap<Vlds>, OptKey>>
 export function struct(vldSchema: Assoc<Vld<unknown>>, optionalKeys?: (string | symbol)[]) {
-    return extend(isObject, extend(proto(eq(Object.prototype)), schema(vldSchema, optionalKeys as any)))
+    return extend(isObject, extend(proto(eq(Object.prototype)), schema(vldSchema, optionalKeys)))
 }

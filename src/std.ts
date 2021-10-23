@@ -1,4 +1,4 @@
-import { VldTypeMap, OkTypeMap, Ord, Tuple, Assoc, Dict, Album, Opt, protoChain, ownKeys, ownStringKeys, ownSymbolKeys, hasOwnKey } from './_util.ts'
+import { OkTypeMap, Ord, Tuple, Assoc, Dict, Album, Opt, protoChain, ownKeys, ownStringKeys, ownSymbolKeys, hasOwnKey } from './_util.ts'
 import { Vld, TgVld, union } from './core.ts'
 export function isAny(_tgt: unknown) {
     return true
@@ -123,8 +123,8 @@ export function allPropsSym(vld: Vld<unknown>) {
         }, tgt)
     }
 }
-export function hasSchema<OkSchema extends Assoc<unknown>>(vldSchema: VldTypeMap<unknown, OkSchema>): TgVld<object, OkSchema & Assoc<unknown>>
-export function hasSchema<OkSchema extends Assoc<unknown>, OptKey extends keyof OkSchema = never>(vldSchema: VldTypeMap<unknown, OkSchema>, optionalKeys?: OptKey[]): TgVld<object, Opt<OkSchema, OptKey> & Assoc<unknown>>
+export function hasSchema<Vlds extends Assoc<Vld<unknown>>>(vldSchema: Vlds): TgVld<unknown, OkTypeMap<Vlds> & Assoc<unknown>>
+export function hasSchema<Vlds extends Assoc<Vld<unknown>>, OptKey extends keyof Vlds = never>(vldSchema: Vlds, optionalKeys?: OptKey[]): TgVld<unknown, Opt<OkTypeMap<Vlds>, OptKey> & Assoc<unknown>>
 export function hasSchema(vldSchema: Assoc<Vld<unknown>>, optionalKeys?: (string | symbol)[]) {
     const optKeys = optionalKeys ? optionalKeys : []
     const vlds = { ...vldSchema }
@@ -141,10 +141,10 @@ export function hasSchema(vldSchema: Assoc<Vld<unknown>>, optionalKeys?: (string
         return true
     }
 }
-export function schema<OkSchema extends Assoc<unknown>>(vldSchema: VldTypeMap<unknown, OkSchema>): TgVld<object, OkSchema>
-export function schema<OkSchema extends Assoc<unknown>, OptKey extends keyof OkSchema = never>(vldSchema: VldTypeMap<unknown, OkSchema>, optionalKeys?: OptKey[]): TgVld<object, Opt<OkSchema, OptKey>>
+export function schema<Vlds extends Assoc<Vld<unknown>>>(vldSchema: Vlds): TgVld<unknown, OkTypeMap<Vlds>>
+export function schema<Vlds extends Assoc<Vld<unknown>>, OptKey extends keyof Vlds = never>(vldSchema: Vlds, optionalKeys?: OptKey[]): TgVld<unknown, Opt<OkTypeMap<Vlds>, OptKey>>
 export function schema(vldSchema: Assoc<Vld<unknown>>, optionalKeys?: (string | symbol)[]) {
-    const vld = hasSchema(vldSchema, optionalKeys as any)
+    const vld = hasSchema(vldSchema, optionalKeys)
     return (tgt: object) => {
         if (!vld(tgt)) return false
         return protoChain((tgt: object) => {
