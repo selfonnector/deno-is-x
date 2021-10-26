@@ -36,25 +36,6 @@ export function isObject(tgt: unknown): tgt is object {
 export function isArray(tgt: unknown): tgt is unknown[] {
     return Array.isArray(tgt)
 }
-export function nodupElems<E>(valGet: (e: E) => unknown = e => e) {
-    return (tgt: E[]) => {
-        const scanned: unknown[] = []
-        for (const e of tgt) {
-            const val = valGet(e)
-            if (scanned.includes(val)) return false
-            scanned.push(val)
-        }
-        return true
-    }
-}
-export function eqAllElems<E>(valGet: (e: E) => unknown = e => e) {
-    return (tgt: E[]) => {
-        if (tgt.length === 0) return true
-        const base = valGet(tgt[0])
-        for (let i = 1; i < tgt.length; i++) if (valGet(tgt[i]) !== base) return false
-        return true
-    }
-}
 export function proto<T extends object>(vld: TgVld<object | null, T>): TgVld<object, T>
 export function proto(vld: Vld<object | null>): Vld<object>
 export function proto(vld: Vld<object | null>) {
@@ -99,6 +80,25 @@ export function elems(...vlds: Vld<unknown>[]) {
     return (tgt: unknown[]) => {
         if (tgt.length !== vlds.length) return false
         for (let i = 0; i < tgt.length; i++) if (!vlds[i](tgt[i])) return false
+        return true
+    }
+}
+export function nodupElems<E>(valGet: (e: E) => unknown = e => e) {
+    return (tgt: E[]) => {
+        const scanned: unknown[] = []
+        for (const e of tgt) {
+            const val = valGet(e)
+            if (scanned.includes(val)) return false
+            scanned.push(val)
+        }
+        return true
+    }
+}
+export function eqAllElems<E>(valGet: (e: E) => unknown = e => e) {
+    return (tgt: E[]) => {
+        if (tgt.length === 0) return true
+        const base = valGet(tgt[0])
+        for (let i = 1; i < tgt.length; i++) if (valGet(tgt[i]) !== base) return false
         return true
     }
 }
