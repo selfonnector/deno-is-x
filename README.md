@@ -32,7 +32,8 @@ The validation in this module is specifically the following `Vld` type function.
 - `isSymbol()` - A `TgVld` that returns true if the `tgt` is a symbol.
 - `isNull()` - A `TgVld` that returns true if the `tgt` is a null.
 - `isUndefined()` - A `TgVld` that returns true if the `tgt` is a undefined.
-- `nodupElems()` - A `Vld` that returns true if there are no duplicate elements in the `tgt`.
+- `nodupElems()` - Takes the optional `valGet` and returns `Vld`. That `Vld` returns true if there are no duplicate elements in the `tgt`. If `valGet` is specified, the value obtained by applying `valGet` to each element of `tgt` is referenced.
+- `eqAllElems()` - Takes the optional `valGet` and returns `Vld`. That `Vld` returns true if all the elements of `tgt` are equal. If `valGet` is specified, the value obtained by applying `valGet` to each element of `tgt` is referenced.
 - `eq()` - Takes `base` and returns `TgVld`. That `TgVld` returns true if `tgt` is equal to `base`.
 - `gt()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is greater than `base`.
 - `lt()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is less than `base`.

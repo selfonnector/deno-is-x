@@ -36,13 +36,24 @@ export function isObject(tgt: unknown): tgt is object {
 export function isArray(tgt: unknown): tgt is unknown[] {
     return Array.isArray(tgt)
 }
-export function nodupElems(tgt: unknown[]) {
-    const scanned: unknown[] = []
-    for (const e of tgt) {
-        if (scanned.includes(e)) return false
-        scanned.push(e)
+export function nodupElems<E>(valGet: (e: E) => unknown = e => e) {
+    return (tgt: E[]) => {
+        const scanned: unknown[] = []
+        for (const e of tgt) {
+            const val = valGet(e)
+            if (scanned.includes(val)) return false
+            scanned.push(val)
+        }
+        return true
     }
-    return true
+}
+export function eqAllElems<E>(valGet: (e: E) => unknown = e => e) {
+    return (tgt: E[]) => {
+        if (tgt.length === 0) return true
+        const base = valGet(tgt[0])
+        for (let i = 1; i < tgt.length; i++) if (valGet(tgt[i]) !== base) return false
+        return true
+    }
 }
 export function proto<T extends object>(vld: TgVld<object | null, T>): TgVld<object, T>
 export function proto(vld: Vld<object | null>): Vld<object>

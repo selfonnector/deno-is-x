@@ -1,6 +1,6 @@
 import { assertEquals } from 'https://deno.land/std@0.110.0/testing/asserts.ts'
 import {
-    isAny, isNever, isString, isNumber, isInt, isBigInt, isBoolean, isSymbol, isNull, isUndefined, isObject, isArray, nodupElems,
+    isAny, isNever, isString, isNumber, isInt, isBigInt, isBoolean, isSymbol, isNull, isUndefined, isObject, isArray, nodupElems, eqAllElems,
     proto, eq, gt, lt, ge, le, len, allElems, elems, allProps, allPropsStr, allPropsSym, hasSchema, schema
 } from './std.ts'
 const symA = Symbol()
@@ -199,9 +199,9 @@ Deno.test({
     }
 })
 Deno.test({
-    name: 'nodupElems',
+    name: 'nodupElems not specify valGet',
     fn() {
-        const vld = nodupElems
+        const vld = nodupElems()
         assertEquals(vld([]), true)
         assertEquals(vld(['']), true)
         assertEquals(vld(['', '']), false)
@@ -230,6 +230,60 @@ Deno.test({
         assertEquals(vld([aryA]), true)
         assertEquals(vld([aryA, aryA]), false)
         assertEquals(vld([aryA, aryB]), true)
+    }
+})
+Deno.test({
+    name: 'nodupElems specify valGet',
+    fn() {
+        const vld = nodupElems((e: string) => e.length)
+        assertEquals(vld([]), true)
+        assertEquals(vld(['a']), true)
+        assertEquals(vld(['a', 'b']), false)
+        assertEquals(vld(['a', 'bb']), true)
+    }
+})
+Deno.test({
+    name: 'eqAllElems not specify valGet',
+    fn() {
+        const vld = eqAllElems()
+        assertEquals(vld([]), true)
+        assertEquals(vld(['']), true)
+        assertEquals(vld(['', '']), true)
+        assertEquals(vld(['', ' ']), false)
+        assertEquals(vld([0]), true)
+        assertEquals(vld([0, 0]), true)
+        assertEquals(vld([0, 1]), false)
+        assertEquals(vld([0n]), true)
+        assertEquals(vld([0n, 0n]), true)
+        assertEquals(vld([0n, 1n]), false)
+        assertEquals(vld([false]), true)
+        assertEquals(vld([false, false]), true)
+        assertEquals(vld([false, true]), false)
+        assertEquals(vld([symA]), true)
+        assertEquals(vld([symA, symA]), true)
+        assertEquals(vld([symA, symB]), false)
+        assertEquals(vld([null]), true)
+        assertEquals(vld([null, null]), true)
+        assertEquals(vld([null, undefined]), false)
+        assertEquals(vld([undefined]), true)
+        assertEquals(vld([undefined, undefined]), true)
+        assertEquals(vld([undefined, null]), false)
+        assertEquals(vld([objA]), true)
+        assertEquals(vld([objA, objA]), true)
+        assertEquals(vld([objA, objB]), false)
+        assertEquals(vld([aryA]), true)
+        assertEquals(vld([aryA, aryA]), true)
+        assertEquals(vld([aryA, aryB]), false)
+    }
+})
+Deno.test({
+    name: 'eqAllElems specify valGet',
+    fn() {
+        const vld = eqAllElems((e: string) => e.length)
+        assertEquals(vld([]), true)
+        assertEquals(vld(['a']), true)
+        assertEquals(vld(['a', 'b']), true)
+        assertEquals(vld(['a', 'bb']), false)
     }
 })
 Deno.test({
