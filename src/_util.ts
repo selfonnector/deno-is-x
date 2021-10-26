@@ -4,7 +4,11 @@ export type OkTypeMap<Vlds, Tgt = any> = {
     [P in keyof Vlds]: OkType<Vlds[P], Tgt>
 }
 export type Ord<T extends Ord = any> = T extends string ? string : T extends number ? number : bigint
-export type Tuple<T, Length extends number, Base extends unknown[] = []> =  Length extends Base['length'] ? Base : number extends Length ? [...Base, ...T[]] : Tuple<T, Length, [...Base, T]>
+export type Tuple<E, Length extends number, Base extends unknown[] = []> =  Length extends Base['length'] ? Base : number extends Length ? [...Base, ...E[]] : Tuple<E, Length, [...Base, E]>
+export type ArrayNest<E> = E[] | ArrayNest<E>[]
+export type ArrayNest0<E> = E | ArrayNest<E>
+export type MultArray<E, Lengths extends number[]> = Lengths extends [infer HeadLength, ...infer TailLengths] ? Tuple<MultArray<E, TailLengths extends number[] ? TailLengths : number[]>, HeadLength extends number ? HeadLength : number> : Lengths extends [] ? E : ArrayNest0<E>
+export type MultArray2<E, Depth extends number, Length extends number = number> = MultArray<E, Tuple<Length, Depth>>
 export type Assoc<E> = {
     [key: string | symbol]: E
 }
