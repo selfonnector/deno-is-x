@@ -102,6 +102,17 @@ export function eqAllElems<E>(valGet: (e: E) => unknown = e => e) {
         return true
     }
 }
+export function elemsAllRel<E>(relVld: (e1: E, e2: E) => boolean) {
+    return (tgt: E[]) => {
+        if (tgt.length < 2) return true
+        const rest = [...tgt]
+        do {
+            const e1 = rest.pop()!
+            for (const e2 of rest) if (!relVld(e1, e2)) return false
+        } while (rest.length !== 1)
+        return true
+    }
+}
 export function allProps<Ok>(vld: TgVld<unknown, Ok>): TgVld<object, Assoc<Ok>>
 export function allProps(vld: Vld<unknown>): Vld<object>
 export function allProps(vld: Vld<unknown>) {

@@ -1,7 +1,7 @@
 import { assertEquals } from 'https://deno.land/std@0.110.0/testing/asserts.ts'
 import {
     isAny, isNever, isString, isNumber, isInt, isBigInt, isBoolean, isSymbol, isNull, isUndefined, isObject, isArray,
-    proto, eq, gt, lt, ge, le, len, allElems, elems, nodupElems, eqAllElems, allProps, allPropsStr, allPropsSym, hasSchema, schema
+    proto, eq, gt, lt, ge, le, len, allElems, elems, nodupElems, eqAllElems, elemsAllRel, allProps, allPropsStr, allPropsSym, hasSchema, schema
 } from './std.ts'
 const symA = Symbol()
 const symB = Symbol()
@@ -616,6 +616,20 @@ Deno.test({
         assertEquals(vld(['a']), true)
         assertEquals(vld(['a', 'b']), true)
         assertEquals(vld(['a', 'bb']), false)
+    }
+})
+Deno.test({
+    name: 'elemsAllRel',
+    fn() {
+        const vld = elemsAllRel((e1, e2) => e1 !== e2)
+        assertEquals(vld([]), true)
+        assertEquals(vld(['a']), true)
+        assertEquals(vld(['a', 'a']), false)
+        assertEquals(vld(['a', 'b']), true)
+        assertEquals(vld(['a', 'a', 'a']), false)
+        assertEquals(vld(['a', 'a', 'b']), false)
+        assertEquals(vld(['a', 'b', 'b']), false)
+        assertEquals(vld(['a', 'b', 'c']), true)
     }
 })
 Deno.test({
