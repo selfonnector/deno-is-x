@@ -38,8 +38,6 @@ The validation in this module is specifically the following `Vld` type function.
 - `ge()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is greater than or equal to `base`.
 - `le()` - Takes `base` and returns `Vld`. That `Vld` returns true if `tgt` is less than or equal to `base`.
 - `len()` - Takes `vld` and returns `TgVld`. That `TgVld` returns true if the value of the `length` property of `tgt` is valid for `vld`.
-- `nodupElems()` - Takes the optional `valGet` and returns `Vld`. That `Vld` returns true if there are no duplicate elements in the `tgt`. If `valGet` is specified, the value obtained by applying `valGet` to each element of `tgt` is referenced.
-- `eqAllElems()` - Takes the optional `valGet` and returns `Vld`. That `Vld` returns true if all the elements of `tgt` are equal. If `valGet` is specified, the value obtained by applying `valGet` to each element of `tgt` is referenced.
 - `elemsAllRel()` - Takes `relVld` and returns `Vld`. That `Vld` returns true if all relationships between the elements of `tgt` are valid for `relVld`.
 - `array()` - Takes `elemVld` and the optional `lenVld` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain array, all elements are valid for `elemVld`, and the value of the `length` property is valid for `lenVld`.
 - `tuple()` - Takes `elemVlds` and returns `TgVld`. That `TgVld` returns true if `tgt` is a plain array and each element is valid for each element of `elemVlds`.

@@ -83,25 +83,6 @@ export function elems(...vlds: Vld<unknown>[]) {
         return true
     }
 }
-export function nodupElems<E>(valGet: (e: E) => unknown = e => e) {
-    return (tgt: E[]) => {
-        const scanned: unknown[] = []
-        for (const e of tgt) {
-            const val = valGet(e)
-            if (scanned.includes(val)) return false
-            scanned.push(val)
-        }
-        return true
-    }
-}
-export function eqAllElems<E>(valGet: (e: E) => unknown = e => e) {
-    return (tgt: E[]) => {
-        if (tgt.length === 0) return true
-        const base = valGet(tgt[0])
-        for (let i = 1; i < tgt.length; i++) if (valGet(tgt[i]) !== base) return false
-        return true
-    }
-}
 export function elemsAllRel<E>(relVld: (e1: E, e2: E) => boolean) {
     return (tgt: E[]) => {
         if (tgt.length < 2) return true
